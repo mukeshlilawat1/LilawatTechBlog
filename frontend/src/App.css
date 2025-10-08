@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+html, body, #root {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  width: 100%;
+  min-height: 100%;
+}
+
+.ProseMirror {
+  > * + * {
+    margin-top: 0.75em;
+  }
+
+  h1 {
+    font-size: 2em;
+    font-weight: bold;
+  }
+
+  h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+  }
+
+  h3 {
+    font-size: 1.17em;
+    font-weight: bold;
+  }
+
+  ul {
+    padding-left: 1.5em;
+    list-style-type: disc;
+  }
+
+  ol {
+    padding-left: 1.5em;
+    list-style-type: decimal;
+  }
+
+  li {
+    margin-bottom: 0.5em;
+  }
+
+  /* Nested lists */
+  ul ul,
+  ol ol,
+  ul ol,
+  ol ul {
+    margin-top: 0.5em;
+  }
+}
+
+/* Style for focused editor */
+.ProseMirror:focus {
+  outline: none;
+}
