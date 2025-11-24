@@ -1,6 +1,7 @@
 package com.lilawattechblog.LilawatTechBlog.mappers;
 
 import com.lilawattechblog.LilawatTechBlog.Domain.Dtos.CategoryDto;
+import com.lilawattechblog.LilawatTechBlog.Domain.Dtos.CreateCategoryRequest;
 import com.lilawattechblog.LilawatTechBlog.Domain.Entities.Category;
 import com.lilawattechblog.LilawatTechBlog.Domain.Entities.Post;
 import com.lilawattechblog.LilawatTechBlog.Domain.PostStatus;
@@ -15,6 +16,8 @@ import java.util.List;
 public interface CategoryMapper {
     @Mapping(target = "postCount", source = "posts", qualifiedByName = "calculatePostCount")
     CategoryDto toDto(Category category);
+
+    Category toEntity(CreateCategoryRequest createCategoryRequest);
 
     @Named("calculatePostCount")
     default long  calculatePostCount(List<Post> posts) {
