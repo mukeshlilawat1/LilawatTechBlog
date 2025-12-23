@@ -1,6 +1,7 @@
 package com.lilawattechblog.LilawatTechBlog.Services.impl;
 
 import com.lilawattechblog.LilawatTechBlog.Services.AuthenticationService;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -34,23 +35,29 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public UserDetails authenticate(String email, String password) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-         return userDetailsService.loadUserByUsername(email);
+        return userDetailsService.loadUserByUsername(email);
     }
 
     @Override
     public String generateToken(UserDetails userDetails) {
         Map<String, Objects> claims = new HashMap<>();
-      return   Jwts.builder().claims(claims)
+        return Jwts.builder().claims(claims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
                 .signWith(getSingningKey(), SignatureAlgorithm.HS256)
-              .compact();
+                .compact();
     }
 
     @Override
     public UserDetails validateToken(String token) {
-        return null;
+        String username = extractUsername(token);
+        return userDetailsService.loadUserByUsername(username);
+    }
+
+    private String extractUsername(String token) {
+        Claims claims = Jwts.parser().build().parseClaimsJws(token).getBody();
+        return claims.getSubject();
     }
 
     private Key getSingningKey() {
