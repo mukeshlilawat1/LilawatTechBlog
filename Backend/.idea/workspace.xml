@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="c51d8358-193b-4e77-a817-cd38edc6ba5f" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/.mvn/wrapper/maven-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/docker-compose.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/mvnw" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/mvnw.cmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Controller/AuthController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Controller/CategoryController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Controller/ErrorController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Domain/Dtos/ApiErrorResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Domain/Dtos/AuthResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Domain/Dtos/CategoryDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Domain/Dtos/CreateCategoryRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Domain/Dtos/LoginRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Domain/Entities/Category.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Domain/Entities/Post.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Domain/Entities/Tag.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Domain/Entities/User.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Domain/PostStatus.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/LilawatTechBlogApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Repositories/CategoryRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Repositories/PostRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Repositories/TagRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Repositories/UserRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Services/AuthenticationService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Services/CategoryService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Services/impl/AuthenticationServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/Services/impl/CategoryServiceImpl.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/config/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/mappers/CategoryMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/security/BlogUserDetails.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/security/BlogUserDetailsService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/java/com/lilawattechblog/LilawatTechBlog/security/JwtAuthenticationFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/main/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/test/java/com/lilawattechblog/LilawatTechBlog/LilawatTechBlogApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LilawatTechBlog/src/test/resources/application.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/package.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHomeTypeForPersistence" value="WRAPPER" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="37mw2qwQKkHPcciZJQNVuD016Sj" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Notification.DisplayName-DoNotAsk-DatabaseConfigFileWatcher.found": "New/updated database configurations found",
+    "Notification.DoNotAsk-DatabaseConfigFileWatcher.found": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "891",
+    "RequestMappingsPanelWidth1": "891",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "Spring Boot.LilawatTechBlogApplication.executor": "Run",
+    "git-widget-placeholder": "main",
+    "ignore.preview.features.used": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/mukeshlilawat/Desktop/LilawatTechBlog/Backend/TechBlog",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="Backend" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="Backend" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+    <configuration name="LilawatTechBlogApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="LilawatTechBlog" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.lilawattechblog.LilawatTechBlog.LilawatTechBlogApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c51d8358-193b-4e77-a817-cd38edc6ba5f" name="Changes" comment="" />
+      <created>1767521350025</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1767521350025</updated>
+      <workItem from="1767521758111" duration="130000" />
+      <workItem from="1767530876052" duration="1208000" />
+      <workItem from="1767546284043" duration="485000" />
+      <workItem from="1767628102311" duration="77000" />
+      <workItem from="1767630543376" duration="11000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>
