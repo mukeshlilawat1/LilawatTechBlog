@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "clean": "rimraf .next out dist coverage .turbo node_modules package-lock.json && npm cache clean --force"
