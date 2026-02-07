@@ -1,44 +1,69 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { apiService } from '../services/apiService';
-import { useAuth } from '../components/AuthContext';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { apiService } from "../services/apiService";
+import { useAuth } from "../components/AuthContext";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     try {
       const response = await apiService.login({ email, password });
       login(response);
-      navigate('/');
+      navigate("/");
     } catch (err: any) {
-      setError(err.message || 'Failed to login. Please try again.');
+      setError(err.message || "Failed to login. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <label htmlFor="email" className="sr-only">
+    <main className="min-h-screen relative overflow-hidden bg-gradient-to-b from-background via-background to-default-100/40 flex items-center justify-center px-4">
+      
+      {/* ===== Background Orbs (same design language as Home) ===== */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute -top-32 -right-32 w-[420px] h-[420px] bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-[420px] h-[420px] bg-gradient-to-tr from-secondary/20 to-transparent rounded-full blur-3xl" />
+      </div>
+
+      {/* ===== Card ===== */}
+      <div className="relative w-full max-w-md">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-secondary/20 rounded-3xl blur opacity-60" />
+
+        <div className="relative bg-background/80 backdrop-blur-xl border border-default-200/60 rounded-3xl shadow-2xl p-8 sm:p-10">
+          
+          {/* Header */}
+          <div className="text-center mb-8 space-y-2">
+            <h1 className="text-3xl font-black tracking-tight text-foreground">
+              Welcome Back
+            </h1>
+            <p className="text-sm text-default-500">
+              Sign in to continue to{" "}
+              <span className="font-semibold text-foreground">
+                LilawatTechBlog
+              </span>
+            </p>
+          </div>
+
+          {/* Form */}
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            
+            {/* Email */}
+            <div className="space-y-1.5">
+              <label
+                htmlFor="email"
+                className="text-sm font-semibold text-default-700"
+              >
                 Email address
               </label>
               <input
@@ -47,15 +72,26 @@ const LoginPage = () => {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
+                disabled={isLoading}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
+                placeholder="you@example.com"
+                className="
+                  w-full rounded-xl border border-default-300 bg-background/60
+                  px-4 py-2.5 text-sm text-foreground
+                  focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40
+                  disabled:bg-default-100
+                  transition
+                "
               />
             </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
+
+            {/* Password */}
+            <div className="space-y-1.5">
+              <label
+                htmlFor="password"
+                className="text-sm font-semibold text-default-700"
+              >
                 Password
               </label>
               <input
@@ -64,37 +100,53 @@ const LoginPage = () => {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                disabled={isLoading}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
+                placeholder="••••••••"
+                className="
+                  w-full rounded-xl border border-default-300 bg-background/60
+                  px-4 py-2.5 text-sm text-foreground
+                  focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40
+                  disabled:bg-default-100
+                  transition
+                "
               />
             </div>
-          </div>
 
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="flex">
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">{error}</h3>
-                </div>
+            {/* Error */}
+            {error && (
+              <div className="rounded-xl bg-danger-50/80 border border-danger-200 px-4 py-3 text-sm text-danger-700">
+                {error}
               </div>
-            </div>
-          )}
+            )}
 
-          <div>
+            {/* Submit */}
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="
+                w-full rounded-xl
+                bg-gradient-to-r from-primary to-secondary
+                py-3 text-sm font-bold text-white
+                shadow-lg shadow-primary/30
+                hover:shadow-xl hover:shadow-primary/40
+                focus:outline-none focus:ring-2 focus:ring-primary/50
+                disabled:opacity-50 disabled:cursor-not-allowed
+                transition-all
+              "
             >
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              {isLoading ? "Signing in..." : "Sign in"}
             </button>
-          </div>
-        </form>
+          </form>
+
+          {/* Footer note */}
+          <p className="mt-8 text-center text-xs text-default-500">
+            Secure access · Admin & author only
+          </p>
+        </div>
       </div>
-    </div>
+    </main>
   );
 };
 

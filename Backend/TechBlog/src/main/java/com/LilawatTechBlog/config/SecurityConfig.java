@@ -29,9 +29,6 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService(UserRepository userRepository) {
         BlogUserDetailsService blogUserDetailsService = new BlogUserDetailsService(userRepository);
-
-
-
         String email = "user@test.com";
         userRepository.findByEmail(email).orElseGet(() -> {
            User newUser = User.builder()

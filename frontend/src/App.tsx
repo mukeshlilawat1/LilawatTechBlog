@@ -9,6 +9,7 @@ import TagsPage from "./pages/TagsPage";
 import DraftsPage from "./pages/DraftsPage";
 import LoginPage from "./pages/LoginPage";
 import { AuthProvider, useAuth } from "./components/AuthContext";
+import Footer from "./components/Footer";
 
 // Protected Route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -66,6 +67,8 @@ function AppContent() {
             } 
           />
         </Routes>
+
+        <Footer/>
       </main>
     </BrowserRouter>
   );

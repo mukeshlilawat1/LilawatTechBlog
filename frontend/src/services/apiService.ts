@@ -196,8 +196,8 @@ class ApiService {
     return response.data;
   }
 
-  public async createTags(names: string[]): Promise<Tag[]> {
-    const response: AxiosResponse<Tag[]> = await this.api.post('/tags', { names });
+  public async createTags(name: string[]): Promise<Tag[]> {
+    const response: AxiosResponse<Tag[]> = await this.api.post('/tags', { name });
     return response.data;
   }
 
