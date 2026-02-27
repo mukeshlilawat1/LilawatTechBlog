@@ -1,6 +1,10 @@
 package com.LilawatTechBlog.Services.impl;
 
 import com.LilawatTechBlog.Services.AuthenticationService;
+import com.LilawatTechBlog.domain.Role;
+import com.LilawatTechBlog.domain.dto.RegisterRequest;
+import com.LilawatTechBlog.domain.entity.User;
+import com.LilawatTechBlog.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -11,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -24,6 +29,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -37,6 +44,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         );
 
       return userDetailsService.loadUserByUsername(email);
+    }
+
+    @Override
+    public UserDetails register(RegisterRequest request) {
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException(("Email already exists"));
+        }
+
+        User newUser = User.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.USER)
+                .build();
+
+        userRepository.save(newUser);
+        return userDetailsService.loadUserByUsername(newUser.getEmail());
     }
 
     @Override

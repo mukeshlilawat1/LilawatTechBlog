@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -87,5 +88,49 @@ public class PostController {
     public ResponseEntity<Void> deletePost(@PathVariable UUID id) {
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/my-posts")
+    public ResponseEntity<List<PostDto>> getMyPosts(@RequestAttribute UUID userId) {
+        User loggedInUser = userService.getUserById(userId);
+        List<Post> posts = postService.getUserPosts(loggedInUser);
+        List<PostDto> postDtos = posts.stream().map(postMapper::toDto).toList();
+        return ResponseEntity.ok(postDtos);
+    }
+
+
+    @PostMapping("/{id}/submit")
+    public ResponseEntity<PostDto> submitPost(
+            @PathVariable UUID id,
+            @RequestAttribute UUID userId
+    ){
+        User loggedInUser = userService.getUserById(userId);
+        Post post = postService.submitForReview(id, loggedInUser);
+        return ResponseEntity.ok(postMapper.toDto(post));
+    }
+
+    @GetMapping("/pending")
+    public ResponseEntity<List<PostDto>>getPendingPosts() {
+        List<Post> pendingPosts = postService.getPendingPosts();
+        List<PostDto> postDtos = pendingPosts.stream().map(postMapper::toDto).toList();
+        return ResponseEntity.ok(postDtos);
+    }
+
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<PostDto>approvePost(
+            @PathVariable UUID id
+    ) {
+        Post post = postService.approvePost(id);
+        return ResponseEntity.ok(postMapper.toDto(post));
+    }
+
+    @PostMapping("/{id}/reject")
+    public ResponseEntity<PostDto> rejectPost(
+            @PathVariable UUID id,
+            @RequestBody Map<String, String> body
+    ) {
+        String message = body.get("message");
+        Post post = postService.rejectPost(id, message);
+        return ResponseEntity.ok(postMapper.toDto(post));
     }
 }

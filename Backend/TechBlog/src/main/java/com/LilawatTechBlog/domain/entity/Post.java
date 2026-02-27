@@ -52,6 +52,12 @@ public class Post {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @Column
+    private String rejectionMessage;
+
+    @Column
+    private String submittedByEmail;
+
     @ManyToMany
     @JoinTable(
             name = "post_tags",

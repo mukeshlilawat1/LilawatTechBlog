@@ -1,18 +1,22 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { apiService } from '../services/apiService';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
+import { apiService, UserProfile } from "../services/apiService";
 
-interface AuthUser {
-  id: string;
-  name: string;
-  email: string;
-}
+export type UserRole = "USER" | "ADMIN";
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: AuthUser | null;
+  role: UserRole | null;
+  profile: UserProfile | null; // ✅ name, email, totalPosts
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   token: string | null;
+  isAdmin: boolean;
 }
 
 interface AuthProviderProps {
@@ -23,86 +27,84 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [token, setToken] = useState<string | null>(
+    localStorage.getItem("token"),
+  );
+  const [role, setRole] = useState<UserRole | null>(
+    localStorage.getItem("role") as UserRole | null,
+  );
+  const [profile, setProfile] = useState<UserProfile | null>(null); // ✅
 
-  // Initialize auth state from token
-  useEffect(() => {
-    const initializeAuth = async () => {
-      const storedToken = localStorage.getItem('token');
-      if (storedToken) {
-        try {
-          // TODO: Add endpoint to fetch user profile
-          // const userProfile = await apiService.getUserProfile();
-          // setUser(userProfile);
-          setIsAuthenticated(true);
-          setToken(storedToken);
-        } catch (error) {
-          // If token is invalid, clear authentication
-          localStorage.removeItem('token');
-          setIsAuthenticated(false);
-          setUser(null);
-          setToken(null);
-        }
-      }
-    };
-
-    initializeAuth();
-  }, []);
-
-  const login = useCallback(async (email: string, password: string) => {
+  // ✅ Profile fetch helper
+  const fetchProfile = useCallback(async () => {
     try {
-      const response = await apiService.login({ email, password });
-      
-      localStorage.setItem('token', response.token);
-      setToken(response.token);
-      setIsAuthenticated(true);
-
-      // TODO: Add endpoint to fetch user profile after login
-      // const userProfile = await apiService.getUserProfile();
-      // setUser(userProfile);
-    } catch (error) {
-      throw error;
+      const data = await apiService.getUserProfile();
+      setProfile(data);
+    } catch {
+      setProfile(null);
     }
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    setIsAuthenticated(false);
-    setUser(null);
-    setToken(null);
-    apiService.logout(); // This clears the token from apiService
+  // Initialize from localStorage on mount
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    const storedRole = localStorage.getItem("role") as UserRole | null;
+    if (storedToken && storedRole) {
+      setIsAuthenticated(true);
+      setToken(storedToken);
+      setRole(storedRole);
+      fetchProfile(); // ✅ page refresh pe bhi profile load ho
+    }
   }, []);
 
-  // Update apiService token when it changes
+  // Axios header sync
   useEffect(() => {
     if (token) {
-      // Update axios instance configuration
-      const axiosInstance = apiService['api'];
-      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      const axiosInstance = apiService["api"];
+      axiosInstance.defaults.headers.common["Authorization"] =
+        `Bearer ${token}`;
     }
   }, [token]);
 
-  const value = {
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const response = await apiService.login({ email, password });
+      localStorage.setItem("token", response.token);
+      localStorage.setItem("role", response.role);
+      setToken(response.token);
+      setRole(response.role as UserRole);
+      setIsAuthenticated(true);
+      await fetchProfile(); // ✅ login ke baad turant profile lo
+    },
+    [fetchProfile],
+  );
+
+  const logout = useCallback(() => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    setIsAuthenticated(false);
+    setRole(null);
+    setToken(null);
+    setProfile(null); // ✅ clear
+    apiService.logout();
+  }, []);
+
+  const value: AuthContextType = {
     isAuthenticated,
-    user,
+    role,
+    profile,
     login,
     logout,
-    token
+    token,
+    isAdmin: role === "ADMIN",
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
 

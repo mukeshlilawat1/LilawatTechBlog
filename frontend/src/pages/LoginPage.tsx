@@ -17,8 +17,8 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await apiService.login({ email, password });
-      login(response);
+      // ✅ AB (correct)
+      await login(email, password); // email, password pass karo
       navigate("/");
     } catch (err: any) {
       setError(err.message || "Failed to login. Please try again.");
@@ -29,7 +29,6 @@ const LoginPage = () => {
 
   return (
     <main className="min-h-screen relative overflow-hidden bg-gradient-to-b from-background via-background to-default-100/40 flex items-center justify-center px-4">
-      
       {/* ===== Background Orbs (same design language as Home) ===== */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-32 -right-32 w-[420px] h-[420px] bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-3xl" />
@@ -41,7 +40,6 @@ const LoginPage = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-secondary/20 rounded-3xl blur opacity-60" />
 
         <div className="relative bg-background/80 backdrop-blur-xl border border-default-200/60 rounded-3xl shadow-2xl p-8 sm:p-10">
-          
           {/* Header */}
           <div className="text-center mb-8 space-y-2">
             <h1 className="text-3xl font-black tracking-tight text-foreground">
@@ -57,7 +55,6 @@ const LoginPage = () => {
 
           {/* Form */}
           <form className="space-y-6" onSubmit={handleSubmit}>
-            
             {/* Email */}
             <div className="space-y-1.5">
               <label

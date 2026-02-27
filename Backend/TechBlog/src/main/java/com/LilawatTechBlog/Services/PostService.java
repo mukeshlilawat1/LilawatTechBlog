@@ -18,4 +18,10 @@ public interface PostService {
     Post updatePost(UUID id, UpdatePostRequest updatePostRequest);
 
     void deletePost(UUID id);
+
+    Post submitForReview(UUID id, User user);
+    List<Post> getPendingPosts();
+    Post approvePost(UUID postId);
+    Post rejectPost(UUID postId, String message);
+    List<Post> getUserPosts(User user);
 }

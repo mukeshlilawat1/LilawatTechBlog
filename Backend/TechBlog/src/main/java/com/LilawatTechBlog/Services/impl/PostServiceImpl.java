@@ -131,6 +131,65 @@ public class PostServiceImpl implements PostService {
 
     }
 
+    @Override
+    @Transactional
+    public Post submitForReview(UUID id, User user) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post does not exist with id " + id));
+
+        if (!post.getAuthor().getId().equals(user.getId())) {
+            throw new RuntimeException("You are not authorized to submit this post");
+        }
+
+        if (post.getStatus() != PostStatus.DRAFT && post.getStatus()  != PostStatus.REJECTED) {
+            throw new RuntimeException("Only draft or rejected posts can be submitted for review");
+        }
+
+        post.setStatus(PostStatus.PENDING);
+        post.setRejectionMessage(null);
+        post.setSubmittedByEmail(user.getEmail());
+        return postRepository.save(post);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Post> getPendingPosts() {
+        return postRepository.findAllByStatus(PostStatus.PENDING);
+    }
+
+    @Override
+    public Post approvePost(UUID postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Post does not exist with id " + postId));
+
+        if (post.getStatus() != PostStatus.PENDING) {
+            throw new RuntimeException("only pending posts can be approved");
+        }
+        post.setStatus(PostStatus.PUBLISHED);
+        post.setRejectionMessage(null);
+        return postRepository.save(post);
+    }
+
+    @Override
+    @Transactional
+    public Post rejectPost(UUID postId, String message) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found : " + postId));
+
+        if (post.getStatus() != PostStatus.PENDING) {
+            throw new RuntimeException("Only pending posts can be rejected");
+        }
+
+        post.setStatus(PostStatus.REJECTED);
+        post.setRejectionMessage(message);
+        return postRepository.save(post);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Post> getUserPosts(User user) {
+       return postRepository.findAllByAuthor(user);
+    }
+
 
     private Integer calculateReadingTime(String content) {
         if (content == null || content.isEmpty()) {
