@@ -18,7 +18,6 @@ export interface AuthResponse {
   role: string;
 }
 
-// ✅ New
 export interface UserProfile {
   name: string;
   email: string;
@@ -37,6 +36,13 @@ export interface Tag {
   postCount?: number;
 }
 
+export enum PostStatus {
+  DRAFT = 'DRAFT',
+  PENDING = 'PENDING',
+  PUBLISHED = 'PUBLISHED',
+  REJECTED = 'REJECTED'
+}
+
 export interface Post {
   id: string;
   title: string;
@@ -51,6 +57,7 @@ export interface Post {
   createdAt: string;
   updatedAt: string;
   status?: PostStatus;
+  rejectionMessage?: string;
 }
 
 export interface CreatePostRequest {
@@ -65,18 +72,27 @@ export interface UpdatePostRequest extends CreatePostRequest {
   id: string;
 }
 
+export interface Note {
+  id: string;
+  title: string;
+  content: string;
+  tags: string[];
+  folder?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface NoteRequest {
+  title: string;
+  content: string;
+  tags: string[];
+  folder?: string;
+}
+
 export interface ApiError {
   status: number;
   message: string;
-  errors?: Array<{
-    field: string;
-    message: string;
-  }>;
-}
-
-export enum PostStatus {
-  DRAFT = 'DRAFT',
-  PUBLISHED = 'PUBLISHED'
+  errors?: Array<{ field: string; message: string }>;
 }
 
 class ApiService {
@@ -138,7 +154,7 @@ class ApiService {
     localStorage.removeItem('role');
   }
 
-  // ✅ User profile
+  // User
   public async getUserProfile(): Promise<UserProfile> {
     const response: AxiosResponse<UserProfile> = await this.api.get('/users/me');
     return response.data;
@@ -169,8 +185,38 @@ class ApiService {
     await this.api.delete(`/posts/${id}`);
   }
 
-  public async getDrafts(params: { page?: number; size?: number; sort?: string }): Promise<Post[]> {
-    const response: AxiosResponse<Post[]> = await this.api.get('/posts/drafts', { params });
+  public async getDrafts(): Promise<Post[]> {
+    const response: AxiosResponse<Post[]> = await this.api.get('/posts/drafts');
+    return response.data;
+  }
+
+  // ✅ My Posts — user ke saare posts (all statuses)
+  public async getMyPosts(): Promise<Post[]> {
+    const response: AxiosResponse<Post[]> = await this.api.get('/posts/my-posts');
+    return response.data;
+  }
+
+  // ✅ Submit post for admin review
+  public async submitPostForReview(id: string): Promise<Post> {
+    const response: AxiosResponse<Post> = await this.api.post(`/posts/${id}/submit`);
+    return response.data;
+  }
+
+  // ✅ Admin — pending posts
+  public async getPendingPosts(): Promise<Post[]> {
+    const response: AxiosResponse<Post[]> = await this.api.get('/posts/pending');
+    return response.data;
+  }
+
+  // ✅ Admin — approve post
+  public async approvePost(id: string): Promise<Post> {
+    const response: AxiosResponse<Post> = await this.api.post(`/posts/${id}/approve`);
+    return response.data;
+  }
+
+  // ✅ Admin — reject post with message
+  public async rejectPost(id: string, message: string): Promise<Post> {
+    const response: AxiosResponse<Post> = await this.api.post(`/posts/${id}/reject`, { message });
     return response.data;
   }
 
@@ -207,6 +253,36 @@ class ApiService {
 
   public async deleteTag(id: string): Promise<void> {
     await this.api.delete(`/tags/${id}`);
+  }
+
+  // ✅ Notes
+  public async getNotes(folder?: string): Promise<Note[]> {
+    const response: AxiosResponse<Note[]> = await this.api.get('/notes', { params: folder ? { folder } : {} });
+    return response.data;
+  }
+
+  public async getNote(id: string): Promise<Note> {
+    const response: AxiosResponse<Note> = await this.api.get(`/notes/${id}`);
+    return response.data;
+  }
+
+  public async createNote(note: NoteRequest): Promise<Note> {
+    const response: AxiosResponse<Note> = await this.api.post('/notes', note);
+    return response.data;
+  }
+
+  public async updateNote(id: string, note: NoteRequest): Promise<Note> {
+    const response: AxiosResponse<Note> = await this.api.put(`/notes/${id}`, note);
+    return response.data;
+  }
+
+  public async deleteNote(id: string): Promise<void> {
+    await this.api.delete(`/notes/${id}`);
+  }
+
+  public async getNoteFolders(): Promise<string[]> {
+    const response: AxiosResponse<string[]> = await this.api.get('/notes/folders');
+    return response.data;
   }
 }
 

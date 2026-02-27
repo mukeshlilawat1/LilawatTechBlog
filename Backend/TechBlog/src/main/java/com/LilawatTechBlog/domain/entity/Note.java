@@ -28,7 +28,7 @@ public class Note {
     private String content;
 
     @ElementCollection
-    @CollectionTable(name = "notes_tags", joinColumns = @JoinColumn(name = "notes_id"))
+    @CollectionTable(name = "note_tags", joinColumns = @JoinColumn(name = "note_id"))
     @Column(name = "tag")
     private Set<String> tags = new HashSet<>();
 
@@ -67,7 +67,7 @@ public class Note {
     }
 
     public int hashCode() {
-        return Objects.hashCode(getTags());
+        return Objects.hash(getId());
     }
 
 }

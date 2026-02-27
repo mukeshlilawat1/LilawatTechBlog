@@ -34,12 +34,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         httpSecurity.authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll() // ✅ Add kiya
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts/drafts").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/posts/my-posts").authenticated()   // ✅ ADD
-                        .requestMatchers(HttpMethod.POST, "/api/v1/posts/*/submit").authenticated()  // ✅ ADD
-                        .requestMatchers(HttpMethod.GET, "/api/v1/posts/pending").authenticated()    // ✅ ADD
-                        .requestMatchers(HttpMethod.POST, "/api/v1/posts/*/approve").authenticated() // ✅ ADD
+                        .requestMatchers("/api/v1/notes/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/posts/my-posts").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/posts/*/submit").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/posts/pending").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/posts/*/approve").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/v1/posts/*/reject").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()

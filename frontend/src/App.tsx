@@ -9,7 +9,10 @@ import TagsPage from "./pages/TagsPage";
 import DraftsPage from "./pages/DraftsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import Profilepage from "./pages/Profilepage"; // ✅ ADD
+import Profilepage from "./pages/Profilepage";
+import MyPostsPage from "./pages/MyPostsPage"; // ✅ NEW
+import AdminDashboard from "./pages/AdminDashboard"; // ✅ NEW
+import NotesPage from "./pages/NotesPage"; // ✅ NEW
 import { AuthProvider, useAuth } from "./components/AuthContext";
 import Footer from "./components/Footer";
 
@@ -33,7 +36,7 @@ const GuestRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 function AppContent() {
-  const { isAuthenticated, isAdmin, logout, profile } = useAuth(); // ✅ profile lo
+  const { isAuthenticated, isAdmin, logout, profile } = useAuth();
 
   return (
     <>
@@ -41,7 +44,7 @@ function AppContent() {
         isAuthenticated={isAuthenticated}
         isAdmin={isAdmin}
         onLogout={logout}
-        userProfile={{ name: profile?.name || "User" }} // ✅ naam pass karo
+        userProfile={{ name: profile?.name || "User" }}
       />
       <main className="container mx-auto py-6">
         <Routes>
@@ -68,7 +71,33 @@ function AppContent() {
               </GuestRoute>
             }
           />
-          {/* Authenticated */}
+          {/* Authenticated users */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profilepage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-posts"
+            element={
+              <ProtectedRoute>
+                <MyPostsPage />
+              </ProtectedRoute>
+            }
+          />{" "}
+          {/* ✅ NEW */}
+          <Route
+            path="/notes"
+            element={
+              <ProtectedRoute>
+                <NotesPage />
+              </ProtectedRoute>
+            }
+          />{" "}
+          {/* ✅ NEW */}
           <Route
             path="/posts/new"
             element={
@@ -93,16 +122,16 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+          {/* Admin only */}
           <Route
-            path="/profile"
+            path="/admin"
             element={
-              <ProtectedRoute>
-                <Profilepage />
-              </ProtectedRoute>
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
             }
           />{" "}
-          {/* ✅ ADD */}
-          {/* Admin only */}
+          {/* ✅ NEW */}
           <Route
             path="/categories"
             element={

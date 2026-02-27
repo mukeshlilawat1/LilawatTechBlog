@@ -33,6 +33,7 @@ import {
   FileText,
   Tag as TagIcon,
   Layers,
+  Info,
 } from "lucide-react";
 import { Post, Category, Tag, PostStatus } from "../services/apiService";
 
@@ -64,10 +65,19 @@ const PostForm: React.FC<PostFormProps> = ({
   const [selectedTags, setSelectedTags] = useState<Tag[]>(
     initialPost?.tags || [],
   );
+  // ✅ User sirf DRAFT save kar sakta hai — status always DRAFT on create/edit
   const [status, setStatus] = useState<PostStatus>(
-    initialPost?.status || PostStatus.DRAFT,
+    initialPost?.status === PostStatus.DRAFT ||
+      initialPost?.status === PostStatus.REJECTED
+      ? PostStatus.DRAFT
+      : initialPost?.status || PostStatus.DRAFT,
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Is post ka status read-only hai? (pending ya published)
+  const isStatusLocked =
+    initialPost?.status === PostStatus.PENDING ||
+    initialPost?.status === PostStatus.PUBLISHED;
 
   const editor = useEditor({
     extensions: [
@@ -96,7 +106,12 @@ const PostForm: React.FC<PostFormProps> = ({
       editor.commands.setContent(initialPost.content);
       setCategoryId(initialPost.category?.id);
       setSelectedTags(initialPost.tags);
-      setStatus(initialPost.status || PostStatus.DRAFT);
+      setStatus(
+        initialPost.status === PostStatus.DRAFT ||
+          initialPost.status === PostStatus.REJECTED
+          ? PostStatus.DRAFT
+          : initialPost.status || PostStatus.DRAFT,
+      );
     }
   }, [initialPost, editor]);
 
@@ -113,7 +128,6 @@ const PostForm: React.FC<PostFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-
     await onSubmit({
       title: title.trim(),
       content: editor?.getHTML() || "",
@@ -121,10 +135,6 @@ const PostForm: React.FC<PostFormProps> = ({
       tagIds: selectedTags.map((t) => t.id),
       status,
     });
-  };
-
-  const handleHeadingSelect = (level: number) => {
-    editor?.chain().focus().toggleHeading({ level }).run();
   };
 
   const handleTagAdd = (tag: Tag) => {
@@ -143,7 +153,6 @@ const PostForm: React.FC<PostFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Form Header */}
       <div className="space-y-2">
         <h2 className="text-2xl sm:text-3xl font-bold text-foreground">
           {initialPost ? "Edit Post" : "Create New Post"}
@@ -180,17 +189,15 @@ const PostForm: React.FC<PostFormProps> = ({
             />
           </div>
 
-          {/* Editor Section */}
+          {/* Editor */}
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-sm font-medium text-default-700">
               <FileText size={16} className="text-primary" />
               <span>Content</span>
             </div>
 
-            {/* Editor Toolbar */}
             <div className="sticky top-16 sm:top-20 z-20 bg-default-100/90 backdrop-blur-md rounded-lg sm:rounded-xl border border-default-300/50 p-2 sm:p-2.5 shadow-sm">
               <div className="flex flex-wrap items-center gap-1 sm:gap-1.5">
-                {/* Heading Dropdown */}
                 <Dropdown>
                   <DropdownTrigger>
                     <Button
@@ -205,7 +212,13 @@ const PostForm: React.FC<PostFormProps> = ({
                   </DropdownTrigger>
                   <DropdownMenu
                     aria-label="Headings"
-                    onAction={(key) => handleHeadingSelect(Number(key))}
+                    onAction={(key) =>
+                      editor
+                        ?.chain()
+                        .focus()
+                        .toggleHeading({ level: Number(key) as 1 | 2 | 3 })
+                        .run()
+                    }
                   >
                     <DropdownItem key="1" className="text-2xl font-bold">
                       Heading 1
@@ -224,13 +237,16 @@ const PostForm: React.FC<PostFormProps> = ({
                   className="h-6 mx-0.5 sm:mx-1"
                 />
 
-                {/* Text Formatting */}
                 <Button
                   size="sm"
                   isIconOnly
                   variant="flat"
                   onClick={() => editor?.chain().focus().toggleBold().run()}
-                  className={`transition-colors ${editor?.isActive("bold") ? "bg-primary/20 text-primary" : "hover:bg-default-200"}`}
+                  className={
+                    editor?.isActive("bold")
+                      ? "bg-primary/20 text-primary"
+                      : "hover:bg-default-200"
+                  }
                 >
                   <Bold size={16} />
                 </Button>
@@ -239,7 +255,11 @@ const PostForm: React.FC<PostFormProps> = ({
                   isIconOnly
                   variant="flat"
                   onClick={() => editor?.chain().focus().toggleItalic().run()}
-                  className={`transition-colors ${editor?.isActive("italic") ? "bg-primary/20 text-primary" : "hover:bg-default-200"}`}
+                  className={
+                    editor?.isActive("italic")
+                      ? "bg-primary/20 text-primary"
+                      : "hover:bg-default-200"
+                  }
                 >
                   <Italic size={16} />
                 </Button>
@@ -249,7 +269,6 @@ const PostForm: React.FC<PostFormProps> = ({
                   className="h-6 mx-0.5 sm:mx-1"
                 />
 
-                {/* Lists */}
                 <Button
                   size="sm"
                   isIconOnly
@@ -257,7 +276,11 @@ const PostForm: React.FC<PostFormProps> = ({
                   onClick={() =>
                     editor?.chain().focus().toggleBulletList().run()
                   }
-                  className={`transition-colors ${editor?.isActive("bulletList") ? "bg-primary/20 text-primary" : "hover:bg-default-200"}`}
+                  className={
+                    editor?.isActive("bulletList")
+                      ? "bg-primary/20 text-primary"
+                      : "hover:bg-default-200"
+                  }
                 >
                   <List size={16} />
                 </Button>
@@ -268,7 +291,11 @@ const PostForm: React.FC<PostFormProps> = ({
                   onClick={() =>
                     editor?.chain().focus().toggleOrderedList().run()
                   }
-                  className={`transition-colors ${editor?.isActive("orderedList") ? "bg-primary/20 text-primary" : "hover:bg-default-200"}`}
+                  className={
+                    editor?.isActive("orderedList")
+                      ? "bg-primary/20 text-primary"
+                      : "hover:bg-default-200"
+                  }
                 >
                   <ListOrdered size={16} />
                 </Button>
@@ -278,7 +305,6 @@ const PostForm: React.FC<PostFormProps> = ({
                   className="h-6 mx-0.5 sm:mx-1"
                 />
 
-                {/* History */}
                 <Button
                   size="sm"
                   isIconOnly
@@ -302,7 +328,6 @@ const PostForm: React.FC<PostFormProps> = ({
               </div>
             </div>
 
-            {/* Editor */}
             <div className="rounded-lg sm:rounded-xl border-2 border-default-300 bg-white focus-within:border-primary transition-colors overflow-hidden">
               <EditorContent editor={editor} />
             </div>
@@ -340,30 +365,66 @@ const PostForm: React.FC<PostFormProps> = ({
                 ))}
               </Select>
 
-              <Select
-                label="Status"
-                placeholder="Select status"
-                selectedKeys={[status]}
-                onChange={(e) => setStatus(e.target.value as PostStatus)}
-                variant="bordered"
-                classNames={{
-                  trigger: "border-default-300 hover:border-primary",
-                }}
-              >
-                <SelectItem key={PostStatus.DRAFT}>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-warning" />
-                    Draft
+              {/* ✅ Status — sirf DRAFT dikhao user ko */}
+              {isStatusLocked ? (
+                // Pending ya Published post edit nahi honi chahiye normally
+                // lekin agar ho bhi to status locked dikhao
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-default-500 font-medium px-1">
+                    Status
+                  </span>
+                  <div className="flex items-center gap-2 px-3 py-3 rounded-xl border border-default-200 bg-default-50">
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        initialPost?.status === PostStatus.PENDING
+                          ? "bg-warning"
+                          : "bg-success"
+                      }`}
+                    />
+                    <span className="text-sm font-semibold text-default-700">
+                      {initialPost?.status === PostStatus.PENDING
+                        ? "Under Review"
+                        : "Published"}
+                    </span>
+                    <span className="text-xs text-default-400 ml-auto">
+                      (locked)
+                    </span>
                   </div>
-                </SelectItem>
-                <SelectItem key={PostStatus.PUBLISHED}>
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-success" />
-                    Published
-                  </div>
-                </SelectItem>
-              </Select>
+                </div>
+              ) : (
+                <Select
+                  label="Status"
+                  placeholder="Select status"
+                  selectedKeys={[status]}
+                  onChange={(e) => setStatus(e.target.value as PostStatus)}
+                  variant="bordered"
+                  classNames={{
+                    trigger: "border-default-300 hover:border-primary",
+                  }}
+                >
+                  {/* ✅ Sirf DRAFT — user khud publish nahi kar sakta */}
+                  <SelectItem key={PostStatus.DRAFT}>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-default-400" />
+                      Draft
+                    </div>
+                  </SelectItem>
+                </Select>
+              )}
             </div>
+
+            {/* ✅ Info banner — user ko samjhao workflow */}
+            {!isStatusLocked && (
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-primary-50 border border-primary-100">
+                <Info size={15} className="text-primary mt-0.5 shrink-0" />
+                <p className="text-xs text-primary-700 leading-relaxed">
+                  Save as <strong>Draft</strong> first, then go to{" "}
+                  <strong>My Posts</strong> and click{" "}
+                  <strong>"Submit for Review"</strong> — admin will approve
+                  before it goes live.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Tags */}
@@ -420,16 +481,15 @@ const PostForm: React.FC<PostFormProps> = ({
             )}
           </div>
 
-          {/* Actions */}
           <Divider className="my-2" />
 
+          {/* Actions */}
           <div className="flex flex-col-reverse sm:flex-row justify-between items-center gap-3 pt-2">
             <p className="text-xs sm:text-sm text-default-500 text-center sm:text-left">
               {initialPost
                 ? "Update your post to save changes"
                 : "Post will be saved as draft by default"}
             </p>
-
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
               <Button
                 variant="bordered"

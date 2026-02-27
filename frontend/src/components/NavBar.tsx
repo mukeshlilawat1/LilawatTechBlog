@@ -24,6 +24,9 @@ import {
   User,
   Zap,
   UserCircle,
+  FileText,
+  NotebookPen,
+  ShieldCheck,
 } from "lucide-react";
 
 interface NavBarProps {
@@ -132,19 +135,21 @@ const NavBar: React.FC<NavBarProps> = ({
       <NavbarContent justify="end" className="gap-2">
         {isAuthenticated ? (
           <>
-            {/* Drafts desktop */}
-            <NavbarItem className="hidden md:flex">
-              <Button
-                as={Link}
-                to="/posts/drafts"
-                variant="light"
-                size="sm"
-                startContent={<BookDashed size={15} />}
-                className="font-semibold text-default-600"
-              >
-                Drafts
-              </Button>
-            </NavbarItem>
+            {/* Admin review queue badge — desktop */}
+            {isAdmin && (
+              <NavbarItem className="hidden md:flex">
+                <Button
+                  as={Link}
+                  to="/admin"
+                  variant="flat"
+                  size="sm"
+                  startContent={<ShieldCheck size={15} />}
+                  className="font-semibold text-violet-600 bg-violet-100/60 hover:bg-violet-100"
+                >
+                  Review Queue
+                </Button>
+              </NavbarItem>
+            )}
 
             {/* New Post */}
             <NavbarItem>
@@ -180,9 +185,9 @@ const NavBar: React.FC<NavBarProps> = ({
                 <DropdownMenu
                   aria-label="User menu"
                   variant="flat"
-                  classNames={{ base: "p-2 min-w-[210px]" }}
+                  classNames={{ base: "p-2 min-w-[220px]" }}
                 >
-                  {/* User info — readonly header */}
+                  {/* User info header */}
                   <DropdownItem
                     key="user-info"
                     isReadOnly
@@ -222,7 +227,7 @@ const NavBar: React.FC<NavBarProps> = ({
                     textValue="-"
                   />
 
-                  {/* ✅ My Profile */}
+                  {/* My Profile */}
                   <DropdownItem
                     key="my-profile"
                     startContent={
@@ -236,7 +241,35 @@ const NavBar: React.FC<NavBarProps> = ({
                     </Link>
                   </DropdownItem>
 
-                  {/* My Drafts */}
+                  {/* My Posts */}
+                  <DropdownItem
+                    key="my-posts"
+                    startContent={
+                      <FileText size={15} className="text-default-400" />
+                    }
+                    className="py-2 font-medium"
+                    textValue="My Posts"
+                  >
+                    <Link to="/my-posts" className="w-full block">
+                      My Posts
+                    </Link>
+                  </DropdownItem>
+
+                  {/* My Notes */}
+                  <DropdownItem
+                    key="my-notes"
+                    startContent={
+                      <NotebookPen size={15} className="text-default-400" />
+                    }
+                    className="py-2 font-medium"
+                    textValue="My Notes"
+                  >
+                    <Link to="/notes" className="w-full block">
+                      My Notes
+                    </Link>
+                  </DropdownItem>
+
+                  {/* Drafts */}
                   <DropdownItem
                     key="drafts"
                     startContent={
@@ -249,6 +282,22 @@ const NavBar: React.FC<NavBarProps> = ({
                       My Drafts
                     </Link>
                   </DropdownItem>
+
+                  {/* Admin — Review Queue */}
+                  {isAdmin && (
+                    <DropdownItem
+                      key="admin-review"
+                      startContent={
+                        <ShieldCheck size={15} className="text-violet-500" />
+                      }
+                      className="py-2 font-medium text-violet-600"
+                      textValue="Review Queue"
+                    >
+                      <Link to="/admin" className="w-full block">
+                        Review Queue
+                      </Link>
+                    </DropdownItem>
+                  )}
 
                   <DropdownItem
                     key="div2"
@@ -336,14 +385,11 @@ const NavBar: React.FC<NavBarProps> = ({
                 <Link
                   to={item.path}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`
-                    flex items-center justify-between w-full rounded-xl px-4 py-3 text-sm font-semibold transition-all
-                    ${
-                      active
-                        ? "bg-primary/10 text-primary"
-                        : "text-default-600 hover:bg-default-100 hover:text-foreground"
-                    }
-                  `}
+                  className={`flex items-center justify-between w-full rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
+                    active
+                      ? "bg-primary/10 text-primary"
+                      : "text-default-600 hover:bg-default-100 hover:text-foreground"
+                  }`}
                 >
                   {item.name}
                   {active && (
@@ -359,15 +405,37 @@ const NavBar: React.FC<NavBarProps> = ({
           <>
             <Divider className="my-3" />
             <div className="space-y-1">
-              {/* ✅ My Profile mobile */}
               <NavbarMenuItem>
                 <Link
                   to="/profile"
                   onClick={() => setIsMenuOpen(false)}
                   className="flex items-center gap-3 w-full rounded-xl px-4 py-3 text-sm font-semibold text-default-600 hover:bg-default-100 hover:text-foreground transition-all"
                 >
-                  <UserCircle size={17} className="text-default-400" />
-                  My Profile
+                  <UserCircle size={17} className="text-default-400" /> My
+                  Profile
+                </Link>
+              </NavbarMenuItem>
+
+              {/* ✅ My Posts mobile */}
+              <NavbarMenuItem>
+                <Link
+                  to="/my-posts"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center gap-3 w-full rounded-xl px-4 py-3 text-sm font-semibold text-default-600 hover:bg-default-100 hover:text-foreground transition-all"
+                >
+                  <FileText size={17} className="text-default-400" /> My Posts
+                </Link>
+              </NavbarMenuItem>
+
+              {/* ✅ My Notes mobile */}
+              <NavbarMenuItem>
+                <Link
+                  to="/notes"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center gap-3 w-full rounded-xl px-4 py-3 text-sm font-semibold text-default-600 hover:bg-default-100 hover:text-foreground transition-all"
+                >
+                  <NotebookPen size={17} className="text-default-400" /> My
+                  Notes
                 </Link>
               </NavbarMenuItem>
 
@@ -377,10 +445,24 @@ const NavBar: React.FC<NavBarProps> = ({
                   onClick={() => setIsMenuOpen(false)}
                   className="flex items-center gap-3 w-full rounded-xl px-4 py-3 text-sm font-semibold text-default-600 hover:bg-default-100 hover:text-foreground transition-all"
                 >
-                  <BookDashed size={17} className="text-default-400" />
-                  Draft Posts
+                  <BookDashed size={17} className="text-default-400" /> Draft
+                  Posts
                 </Link>
               </NavbarMenuItem>
+
+              {/* ✅ Admin Review Queue mobile */}
+              {isAdmin && (
+                <NavbarMenuItem>
+                  <Link
+                    to="/admin"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center gap-3 w-full rounded-xl px-4 py-3 text-sm font-semibold text-violet-600 hover:bg-violet-50 transition-all"
+                  >
+                    <ShieldCheck size={17} className="text-violet-500" /> Review
+                    Queue
+                  </Link>
+                </NavbarMenuItem>
+              )}
 
               <NavbarMenuItem>
                 <button
@@ -390,8 +472,7 @@ const NavBar: React.FC<NavBarProps> = ({
                   }}
                   className="flex items-center gap-3 w-full rounded-xl px-4 py-3 text-sm font-semibold text-danger hover:bg-danger/10 transition-all"
                 >
-                  <LogOut size={17} />
-                  Log Out
+                  <LogOut size={17} /> Log Out
                 </button>
               </NavbarMenuItem>
             </div>
