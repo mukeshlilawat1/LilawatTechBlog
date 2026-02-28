@@ -144,10 +144,29 @@ class ApiService {
     return response.data;
   }
 
-  public async register(data: RegisterRequest): Promise<AuthResponse> {
-    const response: AxiosResponse<AuthResponse> = await this.api.post('/auth/register', data);
-    return response.data;
-  }
+ // ✅ Purana register method replace karo
+public async register(data: RegisterRequest): Promise<AuthResponse> {
+  const response: AxiosResponse<AuthResponse> = await this.api.post('/auth/register', data);
+  return response.data;
+}
+
+// ✅ YE DO NEW METHODS ADD KARO — register ke neeche
+public async sendOtp(email: string): Promise<void> {
+  await this.api.post('/auth/register/send-otp', { email });
+}
+
+public async verifyOtpAndRegister(data: {
+  name: string;
+  email: string;
+  password: string;
+  otp: string;
+}): Promise<AuthResponse> {
+  const response: AxiosResponse<AuthResponse> = await this.api.post(
+    '/auth/register/verify-otp',
+    data
+  );
+  return response.data;
+}
 
   public logout(): void {
     localStorage.removeItem('token');
@@ -284,6 +303,9 @@ class ApiService {
     const response: AxiosResponse<string[]> = await this.api.get('/notes/folders');
     return response.data;
   }
+
 }
+
+
 
 export const apiService = ApiService.getInstance();

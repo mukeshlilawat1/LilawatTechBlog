@@ -40,7 +40,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public NoteDto createNote(User user, NoteRequest noteRequest) {
        Note note = Note.builder()
                .title(noteRequest.getTitle())
@@ -54,7 +54,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public NoteDto updateNote(UUID id, User user, NoteRequest noteRequest) {
         Note note = noteRepository.findByIdAndOwner(id, user)
                 .orElseThrow(() -> new EntityNotFoundException("Note not found"));
