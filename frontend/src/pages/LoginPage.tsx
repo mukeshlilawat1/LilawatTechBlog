@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../components/AuthContext";
 import { Eye, EyeOff } from "lucide-react";
+import { Turnstile } from "@marsidev/react-turnstile";
+
+const TURNSTILE_SITE_KEY = "0x4AAAAAACkXr0RBGaxDtd-I";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -9,12 +12,19 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!turnstileToken) {
+      setError("Please complete the security check.");
+      return;
+    }
+
     setIsLoading(true);
     try {
       await login(email, password);
@@ -33,7 +43,7 @@ const LoginPage = () => {
     >
       <div className="w-full max-w-[360px]">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-5">
+        <div className="flex items-center justify-center gap-2 mb-6">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
             <span className="text-white font-black text-xs">LT</span>
           </div>
@@ -47,7 +57,8 @@ const LoginPage = () => {
           <h1 className="text-lg font-black text-foreground">Sign In</h1>
           <p className="text-xs text-default-500 mt-0.5 mb-5">Welcome back!</p>
 
-          <form className="space-y-3.5" onSubmit={handleSubmit}>
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            {/* Email */}
             <div>
               <label className="block text-xs font-semibold text-default-600 mb-1">
                 Email
@@ -64,6 +75,7 @@ const LoginPage = () => {
               />
             </div>
 
+            {/* Password */}
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-xs font-semibold text-default-600">
@@ -97,16 +109,28 @@ const LoginPage = () => {
               </div>
             </div>
 
+            {/* Turnstile */}
+            <div className="flex justify-center">
+              <Turnstile
+                siteKey={TURNSTILE_SITE_KEY}
+                onSuccess={(token) => setTurnstileToken(token)}
+                onExpire={() => setTurnstileToken("")}
+                onError={() => setTurnstileToken("")}
+              />
+            </div>
+
+            {/* Error */}
             {error && (
               <p className="text-xs text-danger bg-danger-50 border border-danger-100 rounded-lg px-3 py-2">
                 {error}
               </p>
             )}
 
+            {/* Submit */}
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50 transition mt-1"
+              disabled={isLoading || !turnstileToken}
+              className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50 transition"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -119,6 +143,7 @@ const LoginPage = () => {
             </button>
           </form>
 
+          {/* Divider */}
           <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-default-100" />
@@ -130,6 +155,7 @@ const LoginPage = () => {
             </div>
           </div>
 
+          {/* Google */}
           <button
             type="button"
             onClick={() =>
@@ -162,7 +188,7 @@ const LoginPage = () => {
           <p className="mt-4 text-center text-xs text-default-500">
             No account?{" "}
             <Link
-              to="/login"
+              to="/register"
               className="font-semibold text-primary hover:underline"
             >
               Sign up

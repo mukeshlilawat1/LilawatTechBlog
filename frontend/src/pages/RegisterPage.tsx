@@ -3,8 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { apiService } from "../services/apiService";
 import { useAuth } from "../components/AuthContext";
 import { Eye, EyeOff, ArrowLeft, Check } from "lucide-react";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 type Step = "form" | "otp";
+
+const TURNSTILE_SITE_KEY = "0x4AAAAAACkXr0RBGaxDtd-I";
 
 const RegisterPage = () => {
   const [step, setStep] = useState<Step>("form");
@@ -17,6 +20,7 @@ const RegisterPage = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -33,6 +37,7 @@ const RegisterPage = () => {
     if (password !== confirmPassword)
       return setError("Passwords do not match.");
     if (!allChecks) return setError("Password requirements not met.");
+    if (!turnstileToken) return setError("Please complete the security check.");
     setIsLoading(true);
     try {
       await apiService.sendOtp(email);
@@ -90,7 +95,7 @@ const RegisterPage = () => {
     >
       <div className="w-full max-w-[360px]">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-5">
+        <div className="flex items-center justify-center gap-2 mb-6">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
             <span className="text-white font-black text-xs">LT</span>
           </div>
@@ -100,7 +105,7 @@ const RegisterPage = () => {
         </div>
 
         <div className="w-full bg-content1 border border-default-200 rounded-2xl shadow-sm p-6">
-          {/* ── STEP 1 ── */}
+          {/* ── STEP 1: Form ── */}
           {step === "form" && (
             <>
               <h1 className="text-lg font-black text-foreground">
@@ -110,7 +115,7 @@ const RegisterPage = () => {
                 Join LilawatTechBlog today.
               </p>
 
-              <form className="space-y-3.5" onSubmit={handleSendOtp}>
+              <form className="space-y-4" onSubmit={handleSendOtp}>
                 <div>
                   <label className="block text-xs font-semibold text-default-600 mb-1">
                     Full Name
@@ -215,6 +220,16 @@ const RegisterPage = () => {
                   )}
                 </div>
 
+                {/* Turnstile */}
+                <div className="flex justify-center">
+                  <Turnstile
+                    siteKey={TURNSTILE_SITE_KEY}
+                    onSuccess={(token) => setTurnstileToken(token)}
+                    onExpire={() => setTurnstileToken("")}
+                    onError={() => setTurnstileToken("")}
+                  />
+                </div>
+
                 {error && (
                   <p className="text-xs text-danger bg-danger-50 border border-danger-100 rounded-lg px-3 py-2">
                     {error}
@@ -223,8 +238,8 @@ const RegisterPage = () => {
 
                 <button
                   type="submit"
-                  disabled={isLoading}
-                  className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50 transition mt-1"
+                  disabled={isLoading || !turnstileToken}
+                  className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50 transition"
                 >
                   {isLoading ? (
                     <span className="flex items-center justify-center gap-2">
@@ -263,7 +278,7 @@ const RegisterPage = () => {
                 Check spam if not received.
               </p>
 
-              <form className="space-y-3.5" onSubmit={handleVerifyOtp}>
+              <form className="space-y-4" onSubmit={handleVerifyOtp}>
                 <div>
                   <label className="block text-xs font-semibold text-default-600 mb-1">
                     6-digit OTP
