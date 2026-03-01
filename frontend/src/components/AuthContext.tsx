@@ -56,11 +56,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (token) {
-      const axiosInstance = (apiService as any)["api"];
-      axiosInstance.defaults.headers.common["Authorization"] =
-        `Bearer ${token}`;
-    }
+    apiService.setAuthToken(token);
   }, [token]);
 
   const login = useCallback(
@@ -68,7 +64,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await apiService.login({ email, password });
       localStorage.setItem("token", response.token);
       localStorage.setItem("role", response.role);
-      localStorage.setItem("email", email); // ✅ ADDED
+      localStorage.setItem("email", email);
       setToken(response.token);
       setRole(response.role as UserRole);
       setIsAuthenticated(true);
@@ -80,7 +76,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = useCallback(() => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
-    localStorage.removeItem("email"); // ✅ ADDED
+    localStorage.removeItem("email");
     localStorage.removeItem("userId");
     setIsAuthenticated(false);
     setRole(null);

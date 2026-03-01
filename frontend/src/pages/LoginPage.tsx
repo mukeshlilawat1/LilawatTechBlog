@@ -134,7 +134,7 @@ const LoginPage = () => {
             type="button"
             onClick={() =>
               (window.location.href =
-                "http://localhost:8081/oauth2/authorization/google")
+                import.meta.env.VITE_API_URL + "/oauth2/authorization/google")
             }
             className="w-full flex items-center justify-center gap-2 rounded-lg border border-default-200 bg-background px-3 py-2 text-sm font-medium text-foreground hover:bg-default-50 transition"
           >

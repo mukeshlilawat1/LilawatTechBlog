@@ -26,7 +26,7 @@ export interface AuthResponse {
 }
 
 export interface UserProfile {
-  id : string;
+  id: string;
   name: string;
   email: string;
   totalPosts: number;
@@ -66,7 +66,7 @@ export interface Post {
   updatedAt: string;
   status?: PostStatus;
   rejectionMessage?: string;
-  submittedByEmail?: string; // ✅ ADDED
+  submittedByEmail?: string;
 }
 
 export interface CreatePostRequest {
@@ -122,9 +122,11 @@ export interface ApiError {
 //  API SERVICE
 // ═══════════════════════════════════════════
 
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL;
+if (!API_BASE_URL) {
+  throw new Error('VITE_API_URL is not defined. Please set it in your .env file or Vercel environment variables.');
+}
 
 class ApiService {
   private api: AxiosInstance;
@@ -132,9 +134,9 @@ class ApiService {
 
   private constructor() {
     this.api = axios.create({
-  baseURL: `${API_BASE_URL}/api/v1`,
-  headers: { 'Content-Type': 'application/json' }
-});
+      baseURL: `${API_BASE_URL}/api/v1`,
+      headers: { 'Content-Type': 'application/json' }
+    });
 
     // ── Request interceptor — attach JWT ──
     this.api.interceptors.request.use(
@@ -167,6 +169,14 @@ class ApiService {
     return ApiService.instance;
   }
 
+  public setAuthToken(token: string | null): void {
+    if (token) {
+      this.api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+      delete this.api.defaults.headers.common['Authorization'];
+    }
+  }
+
   private handleError(error: AxiosError): ApiError {
     if (error.response?.data) return error.response.data as ApiError;
     return { status: 500, message: 'An unexpected error occurred' };
@@ -181,7 +191,7 @@ class ApiService {
     if (!response.data.twoFactorRequired) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('role', response.data.role);
-      localStorage.setItem('email', credentials.email); // ✅ ADDED
+      localStorage.setItem('email', credentials.email);
       if (response.data.userId) localStorage.setItem('userId', response.data.userId);
     }
     return response.data;
@@ -209,7 +219,7 @@ class ApiService {
     if (response.data.token) {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('role', response.data.role);
-      localStorage.setItem('email', data.email); // ✅ ADDED
+      localStorage.setItem('email', data.email);
       if (response.data.userId) localStorage.setItem('userId', response.data.userId);
     }
     return response.data;
@@ -219,7 +229,7 @@ class ApiService {
     const response: AxiosResponse<AuthResponse> = await this.api.post('/auth/2fa/verify', { email, otp });
     localStorage.setItem('token', response.data.token);
     localStorage.setItem('role', response.data.role);
-    localStorage.setItem('email', email); // ✅ ADDED
+    localStorage.setItem('email', email);
     if (response.data.userId) localStorage.setItem('userId', response.data.userId);
     return response.data;
   }
@@ -240,7 +250,7 @@ class ApiService {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     localStorage.removeItem('userId');
-    localStorage.removeItem('email'); // ✅ ADDED
+    localStorage.removeItem('email');
   }
 
   // ═══════════════════════════════════════════
