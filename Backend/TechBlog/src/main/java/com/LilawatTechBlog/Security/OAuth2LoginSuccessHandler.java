@@ -55,7 +55,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         authenticationService.createSession(email, refreshToken, deviceInfo, request.getRemoteAddr());
 
 //         frontend side redirect token ke sath
-        String redirectUrl ="http://localhost:5173/oauth2/callback"
+        String redirectUrl ="https://www.lilawattechblog.in/oauth2/callback"
                 + "?token=" + accessToken
                 + "&refreshToken=" + refreshToken
                 + "&role=" + user.getRole().name()
