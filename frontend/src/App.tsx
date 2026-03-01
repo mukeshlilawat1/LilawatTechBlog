@@ -10,9 +10,9 @@ import DraftsPage from "./pages/DraftsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Profilepage from "./pages/Profilepage";
-import MyPostsPage from "./pages/MyPostsPage"; // ✅ NEW
-import AdminDashboard from "./pages/AdminDashboard"; // ✅ NEW
-import NotesPage from "./pages/NotesPage"; // ✅ NEW
+import MyPostsPage from "./pages/Mypostspage"; // ✅ NEW
+import AdminDashboard from "./pages/Admindashboard"; // ✅ NEW
+import NotesPage from "./pages/Notespage"; // ✅ NEW
 import { AuthProvider, useAuth } from "./components/AuthContext";
 import Footer from "./components/Footer";
 import OAuth2Callback from './pages/OAuth2Callback';
