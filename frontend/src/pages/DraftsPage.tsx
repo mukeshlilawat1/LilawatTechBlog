@@ -57,11 +57,7 @@ const DraftsPage: React.FC = () => {
     const fetchDrafts = async () => {
       try {
         setLoading(true);
-        const response = await apiService.getDrafts({
-          page: page - 1,
-          size: 10,
-          sort: sortBy,
-        });
+        const response = await apiService.getDrafts();
         setDrafts(response);
         setError(null);
       } catch {
