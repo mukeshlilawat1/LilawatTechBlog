@@ -1,15 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { apiService, Note, NoteRequest } from "../services/apiService";
 import {
-  Button,
-  Input,
-  Card,
-  CardBody,
-  Chip,
-  Divider,
-  Spinner,
-} from "@nextui-org/react";
-import {
   Plus,
   Search,
   Trash2,
@@ -22,19 +13,239 @@ import {
 } from "lucide-react";
 
 type View = "list" | "editor";
-
-const FOLDER_COLORS: Record<
-  string,
-  { chip: "primary" | "secondary" | "warning" | "success" | "default" }
-> = {
-  Work: { chip: "primary" },
-  Personal: { chip: "secondary" },
-  Ideas: { chip: "warning" },
-  Research: { chip: "success" },
-  Other: { chip: "default" },
+const FOLDERS = ["Work", "Personal", "Ideas", "Research", "Other"];
+const FOLDER_COLORS: Record<string, string> = {
+  Work: "#e8ff47",
+  Personal: "#a78bfa",
+  Ideas: "#f59e0b",
+  Research: "#22c55e",
+  Other: "#6b6b72",
 };
 
-const FOLDERS = ["Work", "Personal", "Ideas", "Research", "Other"];
+const PageStyles = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap');
+
+    .np-root { display: flex; min-height: 100vh; background: #0a0a0b; font-family: 'DM Sans', sans-serif; }
+
+    /* ── Sidebar ── */
+    .np-sidebar {
+      width: 220px; flex-shrink: 0; background: #0d0d0f;
+      border-right: 1px solid rgba(255,255,255,0.07);
+      display: flex; flex-direction: column; padding: 24px 12px;
+      position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    }
+    .np-sidebar::-webkit-scrollbar { display: none; }
+
+    .np-sidebar-label { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: #3a3a42; padding: 0 8px; margin-bottom: 10px; margin-top: 4px; }
+
+    .np-folder-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; padding: 9px 10px; border-radius: 9px;
+      font-size: 13px; font-weight: 500; color: #6b6b72;
+      background: none; border: none; cursor: pointer;
+      transition: all 0.15s; text-align: left; font-family: 'DM Sans', sans-serif;
+      margin-bottom: 2px;
+    }
+    .np-folder-btn:hover { color: #f0f0ee; background: rgba(255,255,255,0.04); }
+    .np-folder-btn.active { color: #e8ff47; background: rgba(232,255,71,0.07); font-weight: 700; }
+    .np-folder-btn .np-folder-left { display: flex; align-items: center; gap: 8px; }
+    .np-folder-count { font-family: 'DM Mono', monospace; font-size: 10px; color: #3a3a42; }
+    .np-folder-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+    .np-sidebar-new {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      width: 100%; padding: 10px; border-radius: 10px; margin-top: auto; padding-top: 16px;
+      font-size: 13px; font-weight: 700; color: #0a0a0b; background: #e8ff47;
+      border: none; cursor: pointer; transition: all 0.18s; font-family: 'DM Sans', sans-serif;
+    }
+    .np-sidebar-new:hover { background: #f5ff6e; }
+
+    /* ── Main ── */
+    .np-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    .np-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.07);
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(10,10,11,0.95); backdrop-filter: blur(16px);
+      gap: 12px;
+    }
+    .np-topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .np-topbar-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.02em; color: #f0f0ee; line-height: 1; }
+    .np-topbar-meta { font-family: 'DM Mono', monospace; font-size: 11px; color: #4a4a52; margin-top: 2px; }
+    .np-topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+    .np-search-wrap { position: relative; }
+    .np-search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #4a4a52; pointer-events: none; }
+    .np-search {
+      background: #18181b; border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px; padding: 7px 12px 7px 32px;
+      font-size: 13px; color: #f0f0ee; font-family: 'DM Sans', sans-serif;
+      outline: none; width: 180px; transition: border-color 0.18s;
+    }
+    .np-search::placeholder { color: #3a3a42; }
+    .np-search:focus { border-color: rgba(232,255,71,0.3); }
+
+    .np-hamburger {
+      width: 36px; height: 36px; border-radius: 9px;
+      border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.03);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: #6b6b72; transition: all 0.18s;
+    }
+    .np-hamburger:hover { color: #f0f0ee; border-color: rgba(255,255,255,0.15); }
+
+    .np-topbar-new {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700;
+      color: #0a0a0b; background: #e8ff47; border: none; cursor: pointer;
+      transition: all 0.18s; font-family: 'DM Sans', sans-serif;
+    }
+    .np-topbar-new:hover { background: #f5ff6e; }
+
+    /* Grid */
+    .np-content { flex: 1; padding: 24px; }
+    .np-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+
+    /* Note card */
+    .np-note-card {
+      background: #111113; border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px; padding: 18px; cursor: pointer;
+      transition: all 0.2s; position: relative; overflow: hidden;
+    }
+    .np-note-card:hover { border-color: rgba(232,255,71,0.2); transform: translateY(-2px); }
+    .np-note-card:hover .np-delete-btn { opacity: 1; }
+
+    .np-folder-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 8px; border-radius: 5px; font-family: 'DM Mono', monospace;
+      font-size: 10px; font-weight: 600; margin-bottom: 10px;
+      border: 1px solid;
+    }
+    .np-note-title { font-size: 14px; font-weight: 700; color: #f0f0ee; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .np-note-preview { font-size: 12px; color: #4a4a52; line-height: 1.6; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .np-note-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+    .np-note-tag { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 10px; color: #6b6b72; background: #18181b; border: 1px solid rgba(255,255,255,0.06); }
+
+    .np-note-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); }
+    .np-note-date { font-family: 'DM Mono', monospace; font-size: 10px; color: #3a3a42; }
+
+    .np-delete-btn {
+      width: 28px; height: 28px; border-radius: 7px;
+      border: 1px solid rgba(255,68,68,0.2); background: rgba(255,68,68,0.06);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: #ff4444; opacity: 0; transition: all 0.18s;
+    }
+    .np-delete-btn:hover { background: rgba(255,68,68,0.15); }
+
+    /* Empty + Spinner */
+    @keyframes np-spin { to { transform: rotate(360deg); } }
+    .np-spinner { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.07); border-top-color: #e8ff47; animation: np-spin 0.7s linear infinite; margin: 80px auto; }
+    .np-empty { text-align: center; padding: 80px 20px; }
+    .np-empty-icon { font-size: 52px; margin-bottom: 16px; }
+    .np-empty-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: #3a3a42; margin-bottom: 8px; }
+    .np-empty-sub { font-size: 13px; color: #3a3a42; margin-bottom: 24px; }
+
+    /* ── Mobile overlay sidebar ── */
+    .np-overlay { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+    .np-drawer {
+      position: fixed; left: 0; top: 0; bottom: 0; width: 240px; z-index: 51;
+      background: #0d0d0f; border-right: 1px solid rgba(255,255,255,0.07);
+      padding: 20px 12px; display: flex; flex-direction: column;
+    }
+    .np-drawer-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding: 0 4px; }
+    .np-drawer-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: #f0f0ee; }
+    .np-drawer-close { background: none; border: none; cursor: pointer; color: #6b6b72; transition: color 0.15s; }
+    .np-drawer-close:hover { color: #f0f0ee; }
+
+    /* ── Editor ── */
+    .np-editor-root { background: #0a0a0b; min-height: 100vh; font-family: 'DM Sans', sans-serif; }
+    .np-editor-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 24px; border-bottom: 1px solid rgba(255,255,255,0.07);
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(10,10,11,0.95); backdrop-filter: blur(16px);
+    }
+    .np-editor-bar-left { display: flex; align-items: center; gap: 12px; }
+    .np-editor-back {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: none; cursor: pointer;
+      color: #6b6b72; font-size: 13px; font-weight: 600;
+      font-family: 'DM Sans', sans-serif; transition: color 0.15s;
+    }
+    .np-editor-back:hover { color: #f0f0ee; }
+    .np-editor-mode { font-family: 'DM Mono', monospace; font-size: 11px; color: #4a4a52; }
+    .np-editor-bar-right { display: flex; align-items: center; gap: 8px; }
+    .np-save-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 700;
+      color: #0a0a0b; background: #e8ff47; border: none; cursor: pointer;
+      transition: all 0.18s; font-family: 'DM Sans', sans-serif;
+    }
+    .np-save-btn:hover { background: #f5ff6e; }
+    .np-save-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .np-editor-body { max-width: 780px; margin: 0 auto; padding: 36px 24px 80px; }
+    .np-editor-title {
+      width: 100%; background: transparent; border: none; outline: none;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(32px, 6vw, 52px); letter-spacing: 0.02em;
+      color: #f0f0ee; margin-bottom: 20px;
+    }
+    .np-editor-title::placeholder { color: #2a2a32; }
+
+    .np-editor-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; align-items: center; }
+    .np-folder-select {
+      background: #18181b; border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px; padding: 7px 12px; font-size: 12px;
+      color: #f0f0ee; font-family: 'DM Mono', monospace; outline: none;
+      cursor: pointer; transition: border-color 0.18s;
+    }
+    .np-folder-select:focus { border-color: rgba(232,255,71,0.3); }
+    .np-folder-select option { background: #18181b; }
+
+    .np-tag-input-wrap { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .np-tag-input {
+      background: #18181b; border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px; padding: 7px 12px; font-size: 12px;
+      color: #f0f0ee; font-family: 'DM Mono', monospace; outline: none;
+      width: 120px; transition: border-color 0.18s;
+    }
+    .np-tag-input::placeholder { color: #3a3a42; }
+    .np-tag-input:focus { border-color: rgba(232,255,71,0.3); }
+
+    .np-tag-add-btn {
+      padding: 6px 10px; border-radius: 7px; font-size: 11px; font-weight: 600;
+      color: #e8ff47; background: rgba(232,255,71,0.08);
+      border: 1px solid rgba(232,255,71,0.2); cursor: pointer;
+      transition: all 0.15s; font-family: 'DM Mono', monospace;
+    }
+    .np-tag-add-btn:hover { background: rgba(232,255,71,0.15); }
+
+    .np-active-tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 5px; font-family: 'DM Mono', monospace; font-size: 11px; color: #6b6b72; background: #18181b; border: 1px solid rgba(255,255,255,0.07); }
+    .np-active-tag button { background: none; border: none; cursor: pointer; color: #6b6b72; line-height: 1; font-size: 12px; padding: 0 0 0 2px; }
+    .np-active-tag button:hover { color: #ff4444; }
+
+    .np-editor-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 0 0 20px; }
+
+    .np-editor-textarea {
+      width: 100%; min-height: 400px; background: transparent; border: none; outline: none; resize: none;
+      font-size: 15px; line-height: 1.75; color: #b0b0b8;
+      font-family: 'DM Sans', sans-serif; direction: ltr; text-align: left;
+    }
+    .np-editor-textarea::placeholder { color: #2a2a32; }
+
+    /* Responsive */
+    @media (max-width: 767px) {
+      .np-sidebar { display: none; }
+      .np-search { width: 130px; }
+    }
+    @media (min-width: 768px) {
+      .np-hamburger { display: none; }
+    }
+  `}</style>
+);
 
 const NotesPage: React.FC = () => {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -45,7 +256,7 @@ const NotesPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [sidebarOpen, setSidebarOpen] = useState(false); // mobile sidebar
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -135,324 +346,274 @@ const NotesPage: React.FC = () => {
     setTagInput("");
   };
 
-  const removeTag = (tag: string) =>
-    setTags((prev) => prev.filter((t) => t !== tag));
-
   const filtered = notes.filter(
     (n) =>
       n.title.toLowerCase().includes(search.toLowerCase()) ||
       n.content.toLowerCase().includes(search.toLowerCase()),
   );
 
-  // Sidebar content — reuse in both desktop and mobile drawer
-  const SidebarContent = () => (
-    <div className="flex flex-col gap-1 h-full">
-      <p className="text-default-400 text-xs font-mono uppercase tracking-widest px-3 mb-3 mt-2">
-        Folders
-      </p>
-
+  // ── Sidebar folders ──
+  const SidebarInner = ({ onClose }: { onClose?: () => void }) => (
+    <>
+      <p className="np-sidebar-label">Folders</p>
       <button
+        className={`np-folder-btn ${!activeFolder ? "active" : ""}`}
         onClick={() => {
           setActiveFolder(null);
-          setSidebarOpen(false);
+          onClose?.();
         }}
-        className={`w-full text-left px-3 py-2 rounded-xl text-sm font-semibold transition-colors flex items-center justify-between ${
-          !activeFolder
-            ? "bg-primary/10 text-primary"
-            : "text-default-600 hover:bg-default-100 hover:text-foreground"
-        }`}
       >
-        <span className="flex items-center gap-2">
-          <FolderOpen size={14} />
-          All Notes
+        <span className="np-folder-left">
+          <FolderOpen size={13} /> All Notes
         </span>
-        <span className="text-xs text-default-400">{notes.length}</span>
+        <span className="np-folder-count">{notes.length}</span>
       </button>
-
       {FOLDERS.map((f) => {
         const count = notes.filter((n) => n.folder === f).length;
+        const color = FOLDER_COLORS[f];
         return (
           <button
             key={f}
+            className={`np-folder-btn ${activeFolder === f ? "active" : ""}`}
             onClick={() => {
               setActiveFolder(f);
-              setSidebarOpen(false);
+              onClose?.();
             }}
-            className={`w-full text-left px-3 py-2 rounded-xl text-sm font-semibold transition-colors flex items-center justify-between ${
-              activeFolder === f
-                ? "bg-primary/10 text-primary"
-                : "text-default-600 hover:bg-default-100 hover:text-foreground"
-            }`}
           >
-            <span>{f}</span>
-            {count > 0 && (
-              <span className="text-xs text-default-400">{count}</span>
-            )}
+            <span className="np-folder-left">
+              <span className="np-folder-dot" style={{ background: color }} />
+              {f}
+            </span>
+            {count > 0 && <span className="np-folder-count">{count}</span>}
           </button>
         );
       })}
-
-      <div className="flex-1" />
-      <Button
-        onPress={() => {
+      <div style={{ flex: 1 }} />
+      <button
+        className="np-sidebar-new"
+        onClick={() => {
           openNewNote();
-          setSidebarOpen(false);
+          onClose?.();
         }}
-        startContent={<Plus size={16} />}
-        className="w-full font-black text-white bg-gradient-to-r from-primary to-secondary mt-4"
-        size="sm"
       >
-        New Note
-      </Button>
-    </div>
+        <Plus size={15} strokeWidth={2.5} /> New Note
+      </button>
+    </>
   );
 
-  // ─── EDITOR VIEW ─────────────────────────────────────────────────────────────
-  if (view === "editor") {
+  // ── EDITOR ──
+  if (view === "editor")
     return (
-      <div className="min-h-screen bg-background">
-        {/* Editor Header */}
-        <div className="border-b border-default-200 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 bg-background/80 backdrop-blur-xl z-10">
-          <Button
-            variant="light"
-            size="sm"
-            startContent={<ArrowLeft size={15} />}
-            onPress={() => setView("list")}
-            className="font-semibold text-default-500"
-          >
-            <span className="hidden sm:inline">Back to Notes</span>
-            <span className="sm:hidden">Back</span>
-          </Button>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <span className="text-xs text-default-400 font-mono hidden sm:block">
-              {editingNote ? "Editing note" : "New note"}
-            </span>
-            <Button
-              size="sm"
-              isDisabled={!title.trim() || !content.trim()}
-              isLoading={saving}
-              onPress={handleSave}
-              startContent={!saving ? <Save size={14} /> : undefined}
-              className="font-black text-white bg-gradient-to-r from-primary to-secondary"
-            >
-              Save
-            </Button>
-          </div>
-        </div>
-
-        {/* Editor Body */}
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Note title..."
-            className="w-full bg-transparent text-2xl sm:text-4xl font-black text-foreground placeholder:text-default-300 focus:outline-none mb-4 sm:mb-6"
-          />
-
-          {/* Folder + Tags */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4 sm:mb-6 flex-wrap">
-            <select
-              value={folder}
-              onChange={(e) => setFolder(e.target.value)}
-              className="bg-default-100 border border-default-200 rounded-xl px-3 py-1.5 text-sm text-default-600 focus:outline-none w-full sm:w-auto"
-            >
-              <option value="">No folder</option>
-              {FOLDERS.map((f) => (
-                <option key={f} value={f}>
-                  {f}
-                </option>
-              ))}
-            </select>
-
-            <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-              <input
-                type="text"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addTag();
-                  }
-                }}
-                placeholder="Add tag..."
-                className="bg-default-100 border border-default-200 rounded-xl px-3 py-1.5 text-sm text-default-600 placeholder:text-default-300 focus:outline-none flex-1 sm:w-28"
-              />
-              {tagInput && (
-                <Button
-                  size="sm"
-                  variant="flat"
-                  onPress={addTag}
-                  className="h-8 text-xs font-semibold"
-                >
-                  + Add
-                </Button>
-              )}
-              {tags.map((tag) => (
-                <Chip
-                  key={tag}
-                  size="sm"
-                  variant="flat"
-                  color="primary"
-                  onClose={() => removeTag(tag)}
-                >
-                  #{tag}
-                </Chip>
-              ))}
-            </div>
-          </div>
-
-          <Divider className="mb-4 sm:mb-6" />
-
-          {/* Note: Plain text editor — formatting via markdown shorthand */}
-
-          {/* ✅ textarea — RTL issue permanently fixed */}
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Start writing your note..."
-            className="w-full min-h-[300px] sm:min-h-[400px] text-foreground text-base leading-relaxed focus:outline-none bg-transparent resize-none placeholder:text-default-300"
-            style={{ direction: "ltr", textAlign: "left" }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // ─── LIST VIEW ────────────────────────────────────────────────────────────────
-  return (
-    <div className="flex min-h-screen bg-background">
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-56 shrink-0 border-r border-default-200 min-h-screen p-4 flex-col gap-1 bg-default-50">
-        <SidebarContent />
-      </aside>
-
-      {/* Mobile Sidebar Drawer */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          {/* Overlay */}
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setSidebarOpen(false)}
-          />
-          {/* Drawer */}
-          <div className="absolute left-0 top-0 bottom-0 w-64 bg-default-50 border-r border-default-200 p-4 flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <span className="font-bold text-foreground">Folders</span>
+      <>
+        <PageStyles />
+        <div className="np-editor-root">
+          <div className="np-editor-bar">
+            <div className="np-editor-bar-left">
               <button
-                onClick={() => setSidebarOpen(false)}
-                className="text-default-400 hover:text-foreground"
+                className="np-editor-back"
+                onClick={() => setView("list")}
               >
-                <X size={18} />
+                <ArrowLeft size={15} /> Back
+              </button>
+              <span className="np-editor-mode">
+                {editingNote ? "Editing" : "New Note"}
+              </span>
+            </div>
+            <div className="np-editor-bar-right">
+              <button
+                className="np-save-btn"
+                disabled={!title.trim() || !content.trim() || saving}
+                onClick={handleSave}
+              >
+                {saving ? (
+                  "Saving..."
+                ) : (
+                  <>
+                    <Save size={13} /> Save
+                  </>
+                )}
               </button>
             </div>
-            <SidebarContent />
-          </div>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
-        <div className="border-b border-default-200 px-4 sm:px-8 py-4 sm:py-5 flex items-center justify-between bg-background sticky top-0 z-10">
-          <div className="flex items-center gap-3">
-            {/* Mobile hamburger */}
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="md:hidden text-default-500 hover:text-foreground"
-            >
-              <Menu size={20} />
-            </button>
-            <div>
-              <h1 className="text-lg sm:text-2xl font-black text-foreground">
-                {activeFolder || "All Notes"}
-              </h1>
-              <p className="text-default-400 text-xs sm:text-sm mt-0.5">
-                {filtered.length} note{filtered.length !== 1 ? "s" : ""} ·
-                private to you
-              </p>
-            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Input
-              value={search}
-              onValueChange={setSearch}
-              placeholder="Search..."
-              size="sm"
-              startContent={<Search size={14} className="text-default-400" />}
-              classNames={{
-                base: "w-32 sm:w-52",
-                inputWrapper: "bg-default-100",
-              }}
+          <div className="np-editor-body">
+            <input
+              className="np-editor-title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Note title..."
             />
-            {/* Mobile new note button */}
-            <Button
-              onPress={openNewNote}
-              isIconOnly
-              size="sm"
-              className="md:hidden font-black text-white bg-gradient-to-r from-primary to-secondary"
-            >
-              <Plus size={16} />
-            </Button>
+
+            <div className="np-editor-meta">
+              <select
+                className="np-folder-select"
+                value={folder}
+                onChange={(e) => setFolder(e.target.value)}
+              >
+                <option value="">No folder</option>
+                {FOLDERS.map((f) => (
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
+                ))}
+              </select>
+
+              <div className="np-tag-input-wrap">
+                <input
+                  className="np-tag-input"
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addTag();
+                    }
+                  }}
+                  placeholder="Add tag..."
+                />
+                {tagInput && (
+                  <button className="np-tag-add-btn" onClick={addTag}>
+                    + Add
+                  </button>
+                )}
+                {tags.map((tag) => (
+                  <span key={tag} className="np-active-tag">
+                    <Tag size={9} /> #{tag}
+                    <button
+                      onClick={() =>
+                        setTags((prev) => prev.filter((t) => t !== tag))
+                      }
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="np-editor-divider" />
+
+            <textarea
+              className="np-editor-textarea"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Start writing your note..."
+            />
           </div>
         </div>
+      </>
+    );
 
-        {/* Notes Grid */}
-        <div className="flex-1 p-4 sm:p-8">
-          {loading ? (
-            <div className="flex items-center justify-center h-48">
-              <Spinner size="lg" />
+  // ── LIST ──
+  return (
+    <>
+      <PageStyles />
+      <div className="np-root">
+        {/* Desktop sidebar */}
+        <aside className="np-sidebar">
+          <SidebarInner />
+        </aside>
+
+        {/* Mobile drawer */}
+        {sidebarOpen && (
+          <div className="np-overlay" onClick={() => setSidebarOpen(false)}>
+            <div className="np-drawer" onClick={(e) => e.stopPropagation()}>
+              <div className="np-drawer-header">
+                <span className="np-drawer-title">Folders</span>
+                <button
+                  className="np-drawer-close"
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <SidebarInner onClose={() => setSidebarOpen(false)} />
             </div>
-          ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 text-center px-4">
-              <div className="text-5xl mb-4">📝</div>
-              <p className="text-default-500 text-lg font-semibold">
-                No notes yet.
-              </p>
-              <p className="text-default-400 text-sm mb-6">
-                Start writing something private just for you.
-              </p>
-              <Button
-                onPress={openNewNote}
-                startContent={<Plus size={16} />}
-                className="font-black text-white bg-gradient-to-r from-primary to-secondary"
+          </div>
+        )}
+
+        {/* Main content */}
+        <div className="np-main">
+          <div className="np-topbar">
+            <div className="np-topbar-left">
+              <button
+                className="np-hamburger"
+                onClick={() => setSidebarOpen(true)}
               >
-                Create your first note
-              </Button>
+                <Menu size={18} />
+              </button>
+              <div>
+                <div className="np-topbar-title">
+                  {activeFolder || "All Notes"}
+                </div>
+                <div className="np-topbar-meta">
+                  {filtered.length} note{filtered.length !== 1 ? "s" : ""} ·
+                  private to you
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {filtered.map((note) => {
-                const folderCfg = note.folder
-                  ? FOLDER_COLORS[note.folder]
-                  : null;
-                return (
-                  <Card
-                    key={note.id}
-                    isPressable
-                    onPress={() => openEditNote(note)}
-                    className="group border border-default-200 hover:border-primary/40 transition-all duration-200 hover:shadow-md"
-                    shadow="none"
-                  >
-                    <CardBody className="p-4 sm:p-5">
-                      {note.folder && folderCfg && (
-                        <Chip
-                          size="sm"
-                          variant="flat"
-                          color={folderCfg.chip}
-                          className="mb-3"
-                          startContent={<FolderOpen size={11} />}
+            <div className="np-topbar-right">
+              <div className="np-search-wrap">
+                <Search size={13} />
+                <input
+                  className="np-search"
+                  type="text"
+                  placeholder="Search..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+              <button className="np-topbar-new" onClick={openNewNote}>
+                <Plus size={14} strokeWidth={2.5} /> New Note
+              </button>
+            </div>
+          </div>
+
+          <div className="np-content">
+            {loading ? (
+              <div className="np-spinner" />
+            ) : filtered.length === 0 ? (
+              <div className="np-empty">
+                <div className="np-empty-icon">📝</div>
+                <div className="np-empty-title">No notes yet</div>
+                <p className="np-empty-sub">
+                  Start writing something private just for you.
+                </p>
+                <button
+                  className="np-topbar-new"
+                  onClick={openNewNote}
+                  style={{ margin: "0 auto" }}
+                >
+                  <Plus size={14} strokeWidth={2.5} /> Create your first note
+                </button>
+              </div>
+            ) : (
+              <div className="np-grid">
+                {filtered.map((note) => {
+                  const color = note.folder ? FOLDER_COLORS[note.folder] : null;
+                  return (
+                    <div
+                      key={note.id}
+                      className="np-note-card"
+                      onClick={() => openEditNote(note)}
+                    >
+                      {note.folder && color && (
+                        <span
+                          className="np-folder-chip"
+                          style={{
+                            color,
+                            background: `${color}12`,
+                            borderColor: `${color}30`,
+                          }}
                         >
-                          {note.folder}
-                        </Chip>
+                          <FolderOpen size={9} /> {note.folder}
+                        </span>
                       )}
-                      <h3 className="font-bold text-foreground truncate mb-2 text-base">
-                        {note.title}
-                      </h3>
-                      <p
-                        className="text-default-400 text-sm line-clamp-3 leading-relaxed mb-3"
+                      <div className="np-note-title">{note.title}</div>
+                      <div
+                        className="np-note-preview"
                         dangerouslySetInnerHTML={{
                           __html: note.content
                             .replace(/<[^>]+>/g, " ")
@@ -460,51 +621,38 @@ const NotesPage: React.FC = () => {
                         }}
                       />
                       {note.tags && note.tags.length > 0 && (
-                        <div className="flex gap-1.5 flex-wrap mb-3">
+                        <div className="np-note-tags">
                           {note.tags.slice(0, 3).map((tag) => (
-                            <Chip
-                              key={tag}
-                              size="sm"
-                              variant="flat"
-                              startContent={<Tag size={9} />}
-                            >
-                              {tag}
-                            </Chip>
+                            <span key={tag} className="np-note-tag">
+                              <Tag size={8} /> {tag}
+                            </span>
                           ))}
                         </div>
                       )}
-                      <div className="flex items-center justify-between mt-auto pt-2 border-t border-default-100">
-                        <p className="text-default-300 text-xs">
+                      <div className="np-note-footer">
+                        <span className="np-note-date">
                           {new Date(note.updatedAt).toLocaleDateString(
                             "en-IN",
-                            {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            },
+                            { day: "numeric", month: "short", year: "numeric" },
                           )}
-                        </p>
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="light"
-                          color="danger"
-                          isLoading={deleting === note.id}
-                          onPress={(e) => handleDelete(note.id, e as any)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        </span>
+                        <button
+                          className="np-delete-btn"
+                          disabled={deleting === note.id}
+                          onClick={(e) => handleDelete(note.id, e)}
                         >
-                          <Trash2 size={14} />
-                        </Button>
+                          <Trash2 size={13} />
+                        </button>
                       </div>
-                    </CardBody>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
