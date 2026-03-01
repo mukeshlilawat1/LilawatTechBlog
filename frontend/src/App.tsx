@@ -10,12 +10,12 @@ import DraftsPage from "./pages/DraftsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Profilepage from "./pages/Profilepage";
-import MyPostsPage from "./pages/Mypostspage"; // ✅ NEW
-import AdminDashboard from "./pages/Admindashboard"; // ✅ NEW
-import NotesPage from "./pages/Notespage"; // ✅ NEW
+import MyPostsPage from "./pages/Mypostspage";
+import AdminDashboard from "./pages/Admindashboard";
+import NotesPage from "./pages/Notespage";
 import { AuthProvider, useAuth } from "./components/AuthContext";
 import Footer from "./components/Footer";
-import OAuth2Callback from './pages/OAuth2Callback';
+import OAuth2Callback from "./pages/OAuth2Callback";
 import ForgotPasswordPage from "./pages/Forgotpasswordpage";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -41,14 +41,22 @@ function AppContent() {
   const { isAuthenticated, isAdmin, logout, profile } = useAuth();
 
   return (
-    <>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        background: "#0a0a0b",
+        minHeight: "100vh",
+      }}
+    >
       <NavBar
         isAuthenticated={isAuthenticated}
         isAdmin={isAdmin}
         onLogout={logout}
         userProfile={{ name: profile?.name || "User" }}
       />
-      <main className="container mx-auto py-6">
+
+      <main style={{ flex: 1 }}>
         <Routes>
           {/* Public */}
           <Route path="/" element={<HomePage />} />
@@ -56,6 +64,7 @@ function AppContent() {
             path="/posts/:id"
             element={<PostPage isAuthenticated={isAuthenticated} />}
           />
+
           {/* Guest only */}
           <Route
             path="/login"
@@ -73,7 +82,8 @@ function AppContent() {
               </GuestRoute>
             }
           />
-          {/* Authenticated users */}
+
+          {/* Authenticated */}
           <Route
             path="/profile"
             element={
@@ -89,8 +99,7 @@ function AppContent() {
                 <MyPostsPage />
               </ProtectedRoute>
             }
-          />{" "}
-          {/* ✅ NEW */}
+          />
           <Route
             path="/notes"
             element={
@@ -98,8 +107,7 @@ function AppContent() {
                 <NotesPage />
               </ProtectedRoute>
             }
-          />{" "}
-          {/* ✅ NEW */}
+          />
           <Route
             path="/posts/new"
             element={
@@ -124,7 +132,8 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-          {/* Admin only */}
+
+          {/* Admin */}
           <Route
             path="/admin"
             element={
@@ -132,8 +141,7 @@ function AppContent() {
                 <AdminDashboard />
               </AdminRoute>
             }
-          />{" "}
-          {/* ✅ NEW */}
+          />
           <Route
             path="/categories"
             element={
@@ -150,12 +158,14 @@ function AppContent() {
               </AdminRoute>
             }
           />
+
           <Route path="/oauth2/callback" element={<OAuth2Callback />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         </Routes>
-        <Footer />
       </main>
-    </>
+
+      <Footer />
+    </div>
   );
 }
 

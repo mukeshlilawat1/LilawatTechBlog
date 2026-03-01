@@ -61,3 +61,16 @@ html, body, #root {
 .ProseMirror:focus {
   outline: none;
 }
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  width: 100%;
+  min-height: 100vh;
+  background: #0a0a0b;
+  overflow-x: hidden;
+}

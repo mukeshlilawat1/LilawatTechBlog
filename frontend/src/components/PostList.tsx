@@ -1,13 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  Chip,
-  Button,
-} from "@nextui-org/react";
 import { Post } from "../services/apiService";
 import { Calendar, Clock, Tag, ArrowRight, User } from "lucide-react";
 import DOMPurify from "dompurify";
@@ -22,11 +14,160 @@ interface PostListProps {
   onSortChange: (sortBy: string) => void;
 }
 
+const PostListStyles = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=DM+Mono:wght@400;500&display=swap');
+
+    .pl-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    @media (min-width: 640px) { .pl-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .pl-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .pl-card {
+      background: #111113;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      display: flex; flex-direction: column;
+      cursor: pointer;
+      transition: border-color 0.22s, transform 0.22s, box-shadow 0.22s;
+      overflow: hidden;
+      position: relative;
+    }
+    .pl-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(232,255,71,0), transparent);
+      transition: background 0.3s;
+    }
+    .pl-card:hover {
+      border-color: rgba(232,255,71,0.25);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(232,255,71,0.05);
+    }
+    .pl-card:hover::before {
+      background: linear-gradient(90deg, transparent, rgba(232,255,71,0.4), transparent);
+    }
+
+    .pl-card-top {
+      padding: 22px 22px 0;
+    }
+    .pl-cat-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 5px;
+      background: rgba(232,255,71,0.08);
+      border: 1px solid rgba(232,255,71,0.18);
+      font-family: 'DM Mono', monospace;
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: #e8ff47;
+      margin-bottom: 12px;
+    }
+    .pl-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 17px; font-weight: 700; line-height: 1.35;
+      color: #f0f0ee;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      transition: color 0.18s;
+      margin-bottom: 8px;
+    }
+    .pl-card:hover .pl-title { color: #e8ff47; }
+
+    .pl-author {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: #6b6b72;
+      font-family: 'DM Sans', sans-serif;
+      margin-bottom: 14px;
+    }
+
+    .pl-body {
+      padding: 0 22px;
+      flex: 1;
+    }
+    .pl-excerpt {
+      font-size: 13px; line-height: 1.7;
+      color: #4a4a52;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .pl-footer {
+      padding: 16px 22px 20px;
+    }
+    .pl-meta {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; color: #4a4a52;
+      margin-bottom: 12px;
+    }
+    .pl-meta-dot { width: 3px; height: 3px; border-radius: 50%; background: #333; }
+
+    .pl-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .pl-tag {
+      padding: 3px 9px; border-radius: 5px;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px; font-weight: 500;
+      color: #6b6b72; background: #18181b;
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: all 0.15s;
+    }
+    .pl-card:hover .pl-tag { border-color: rgba(232,255,71,0.12); }
+
+    .pl-read-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 8px 16px; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; font-weight: 700;
+      color: #e8ff47; background: rgba(232,255,71,0.08);
+      border: 1px solid rgba(232,255,71,0.2);
+      cursor: pointer; transition: all 0.18s;
+    }
+    .pl-read-btn:hover { background: rgba(232,255,71,0.15); border-color: rgba(232,255,71,0.4); }
+    .pl-read-btn svg { transition: transform 0.2s; }
+    .pl-card:hover .pl-read-btn svg { transform: translateX(3px); }
+
+    /* ── Skeleton ── */
+    .pl-skeleton { animation: plPulse 1.5s ease-in-out infinite; }
+    @keyframes plPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .pl-skel-line { background: #1e1e21; border-radius: 6px; }
+
+    /* ── Empty ── */
+    .pl-empty {
+      text-align: center; padding: 80px 16px;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .pl-empty-icon {
+      width: 64px; height: 64px; border-radius: 16px;
+      background: #111113; border: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .pl-empty-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px; letter-spacing: 0.03em; color: #f0f0ee;
+    }
+    .pl-empty-sub { font-size: 14px; color: #6b6b72; margin-top: 6px; }
+
+    /* ── Error ── */
+    .pl-error {
+      padding: 24px; border-radius: 14px;
+      background: rgba(255,68,68,0.05);
+      border: 1px solid rgba(255,68,68,0.2);
+      text-align: center; font-family: 'DM Sans', sans-serif;
+    }
+    .pl-error-title { color: #ff4444; font-weight: 600; font-size: 14px; }
+    .pl-error-sub { color: rgba(255,68,68,0.6); font-size: 12px; margin-top: 4px; }
+  `}</style>
+);
+
 const PostList: React.FC<PostListProps> = ({ posts, loading, error }) => {
   const navigate = useNavigate();
 
-  const formatDate = (dateString: string) =>
-    new Date(dateString).toLocaleDateString("en-US", {
+  const formatDate = (d: string) =>
+    new Date(d).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -37,201 +178,153 @@ const PostList: React.FC<PostListProps> = ({ posts, loading, error }) => {
       ALLOWED_TAGS: ["p", "strong", "em", "br"],
       ALLOWED_ATTR: [],
     });
-
     const div = document.createElement("div");
     div.innerHTML = sanitized;
-
-    let text = div.textContent || "";
-    text = text.trim();
-
-    if (text.length > 180) {
+    let text = (div.textContent || "").trim();
+    if (text.length > 180)
       text = text.substring(0, 180).split(" ").slice(0, -1).join(" ") + "…";
-    }
-
     return text;
   };
 
-  if (error) {
+  if (error)
     return (
-      <div className="rounded-xl border border-danger/20 bg-danger/5 p-6 text-center">
-        <div className="space-y-2">
-          <p className="text-danger font-medium">{error}</p>
-          <p className="text-sm text-danger/70">
+      <>
+        <PostListStyles />
+        <div className="pl-error">
+          <p className="pl-error-title">{error}</p>
+          <p className="pl-error-sub">
             Please try again later or contact support.
           </p>
         </div>
-      </div>
+      </>
     );
-  }
 
-  /* ---------- Loading ---------- */
-  if (loading) {
+  if (loading)
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-        {[...Array(6)].map((_, i) => (
-          <Card key={i} className="border border-default-200 animate-pulse">
-            <CardHeader className="px-5 sm:px-6 pt-5 sm:pt-6 pb-3">
-              <div className="w-full space-y-3">
-                <div className="h-6 bg-default-200 rounded-lg w-4/5" />
-                <div className="h-4 bg-default-100 rounded w-2/5" />
+      <>
+        <PostListStyles />
+        <div className="pl-grid">
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="pl-card pl-skeleton"
+              style={{ padding: 22, gap: 12 }}
+            >
+              <div
+                className="pl-skel-line"
+                style={{ height: 20, width: "35%", marginBottom: 8 }}
+              />
+              <div
+                className="pl-skel-line"
+                style={{ height: 22, width: "90%" }}
+              />
+              <div
+                className="pl-skel-line"
+                style={{ height: 22, width: "70%", marginBottom: 12 }}
+              />
+              <div
+                className="pl-skel-line"
+                style={{ height: 14, width: "100%" }}
+              />
+              <div
+                className="pl-skel-line"
+                style={{ height: 14, width: "80%" }}
+              />
+              <div
+                className="pl-skel-line"
+                style={{ height: 14, width: "60%", marginBottom: 16 }}
+              />
+              <div style={{ display: "flex", gap: 8 }}>
+                <div
+                  className="pl-skel-line"
+                  style={{ height: 24, width: 56, borderRadius: 5 }}
+                />
+                <div
+                  className="pl-skel-line"
+                  style={{ height: 24, width: 44, borderRadius: 5 }}
+                />
               </div>
-            </CardHeader>
-            <CardBody className="px-5 sm:px-6 py-2">
-              <div className="space-y-2">
-                <div className="h-4 bg-default-100 rounded w-full" />
-                <div className="h-4 bg-default-100 rounded w-full" />
-                <div className="h-4 bg-default-100 rounded w-4/5" />
-              </div>
-            </CardBody>
-            <CardFooter className="px-5 sm:px-6 pb-5 sm:pb-6 pt-3">
-              <div className="w-full space-y-3">
-                <div className="flex gap-3">
-                  <div className="h-6 bg-default-100 rounded-full w-20" />
-                  <div className="h-6 bg-default-100 rounded-full w-16" />
-                </div>
-                <div className="h-9 bg-default-200 rounded-lg w-28" />
-              </div>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
+      </>
     );
-  }
 
-  /* ---------- Empty State ---------- */
-  if (!posts || posts.length === 0) {
+  if (!posts || posts.length === 0)
     return (
-      <div className="text-center py-16 sm:py-20 px-4">
-        <div className="max-w-md mx-auto space-y-4">
-          <div className="w-16 h-16 mx-auto rounded-full bg-default-100 flex items-center justify-center">
-            <Tag size={32} className="text-default-400" />
+      <>
+        <PostListStyles />
+        <div className="pl-empty">
+          <div className="pl-empty-icon">
+            <Tag size={28} color="#6b6b72" />
           </div>
-          <h3 className="text-xl sm:text-2xl font-bold text-foreground">
-            No posts found
-          </h3>
-          <p className="text-sm sm:text-base text-default-500">
-            Try adjusting your filters or check back later for new content.
+          <div className="pl-empty-title">No Posts Found</div>
+          <p className="pl-empty-sub">
+            Try adjusting your filters or check back later.
           </p>
         </div>
-      </div>
+      </>
     );
-  }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-      {posts.map((post) => (
-        <Card
-          key={post.id}
-          isPressable
-          onPress={() => navigate(`/posts/${post.id}`)}
-          className="
-            group border border-default-200/50 
-            transition-all duration-300 ease-out
-            hover:-translate-y-2 hover:shadow-xl hover:shadow-primary/10
-            hover:border-primary/30
-            bg-gradient-to-b from-background to-default-50/30
-          "
-          classNames={{
-            base: "h-full flex flex-col",
-          }}
-        >
-          {/* Header */}
-          <CardHeader className="px-5 sm:px-6 pt-5 sm:pt-6 pb-3 flex-col items-start gap-2">
-            {/* Category Badge */}
-            <Chip
-              size="sm"
-              color="primary"
-              variant="flat"
-              className="mb-1 font-semibold"
-            >
-              {post.category.name}
-            </Chip>
-
-            {/* Title */}
-            <h2
-              className="
-                text-lg sm:text-xl font-bold leading-tight
-                group-hover:text-primary transition-colors duration-300
-                line-clamp-2
-              "
-            >
-              {post.title}
-            </h2>
-
-            {/* Author */}
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-default-500">
-              <User size={14} className="text-default-400" />
-              <span className="font-medium">{post.author?.name}</span>
-            </div>
-          </CardHeader>
-
-          {/* Body */}
-          <CardBody className="px-5 sm:px-6 py-2 flex-grow">
-            <p className="text-sm sm:text-base text-default-600 leading-relaxed line-clamp-3">
-              {createExcerpt(post.content)}
-            </p>
-          </CardBody>
-
-          {/* Footer */}
-          <CardFooter className="px-5 sm:px-6 pb-5 sm:pb-6 pt-3 flex flex-col gap-3 sm:gap-4">
-            {/* Meta Info */}
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-default-500">
-              <div className="flex items-center gap-1.5">
-                <Calendar size={14} className="text-default-400" />
-                <span>{formatDate(post.createdAt)}</span>
+    <>
+      <PostListStyles />
+      <div className="pl-grid">
+        {posts.map((post) => (
+          <div
+            key={post.id}
+            className="pl-card"
+            onClick={() => navigate(`/posts/${post.id}`)}
+          >
+            <div className="pl-card-top">
+              <span className="pl-cat-badge">{post.category.name}</span>
+              <h2 className="pl-title">{post.title}</h2>
+              <div className="pl-author">
+                <User size={12} color="#6b6b72" />
+                <span>{post.author?.name}</span>
               </div>
-              <div className="w-1 h-1 rounded-full bg-default-300" />
-              <div className="flex items-center gap-1.5">
-                <Clock size={14} className="text-default-400" />
+            </div>
+
+            <div className="pl-body">
+              <p className="pl-excerpt">{createExcerpt(post.content)}</p>
+            </div>
+
+            <div className="pl-footer">
+              <div className="pl-meta">
+                <Calendar size={11} />
+                <span>{formatDate(post.createdAt)}</span>
+                <span className="pl-meta-dot" />
+                <Clock size={11} />
                 <span>{post.readingTime} min read</span>
               </div>
+
+              {post.tags.length > 0 && (
+                <div className="pl-tags">
+                  {post.tags.slice(0, 3).map((tag) => (
+                    <span key={tag.id} className="pl-tag">
+                      #{tag.name}
+                    </span>
+                  ))}
+                  {post.tags.length > 3 && (
+                    <span className="pl-tag">+{post.tags.length - 3}</span>
+                  )}
+                </div>
+              )}
+
+              <button
+                className="pl-read-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/posts/${post.id}`);
+                }}
+              >
+                Read Article <ArrowRight size={13} />
+              </button>
             </div>
-
-            {/* Tags */}
-            {post.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {post.tags.slice(0, 3).map((tag) => (
-                  <Chip
-                    key={tag.id}
-                    size="sm"
-                    variant="bordered"
-                    startContent={<Tag size={10} />}
-                    className="text-xs border-default-300 hover:border-primary/50 transition-colors"
-                  >
-                    {tag.name}
-                  </Chip>
-                ))}
-                {post.tags.length > 3 && (
-                  <Chip size="sm" variant="flat" className="text-xs">
-                    +{post.tags.length - 3}
-                  </Chip>
-                )}
-              </div>
-            )}
-
-            {/* Read More Button */}
-            <Button
-              size="sm"
-              color="primary"
-              variant="flat"
-              endContent={
-                <ArrowRight
-                  size={16}
-                  className="group-hover:translate-x-1 transition-transform duration-300"
-                />
-              }
-              className="mt-1 self-start font-semibold group-hover:bg-primary/20"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/posts/${post.id}`);
-              }}
-            >
-              Read Article
-            </Button>
-          </CardFooter>
-        </Card>
-      ))}
-    </div>
+          </div>
+        ))}
+      </div>
+    </>
   );
 };
 

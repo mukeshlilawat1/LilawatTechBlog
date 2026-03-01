@@ -10,6 +10,107 @@ import {
 } from "../services/apiService";
 import PostForm from "../components/PostForm";
 
+const PageStyles = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap');
+
+    .ep-root {
+      background: #0a0a0b;
+      min-height: 100vh;
+      font-family: 'DM Sans', sans-serif;
+      padding-bottom: 80px;
+    }
+
+    .ep-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 32px 20px 40px;
+    }
+
+    /* Breadcrumb */
+    .ep-breadcrumb {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 28px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; color: #4a4a52;
+    }
+    .ep-breadcrumb-btn {
+      display: flex; align-items: center; gap: 4px;
+      background: none; border: none; cursor: pointer;
+      color: #4a4a52; font-family: 'DM Mono', monospace; font-size: 11px;
+      padding: 3px 6px; border-radius: 5px; transition: all 0.15s;
+    }
+    .ep-breadcrumb-btn:hover { color: #f0f0ee; background: rgba(255,255,255,0.05); }
+    .ep-breadcrumb-sep { color: #2a2a32; }
+    .ep-breadcrumb-current { color: #e8ff47; font-weight: 500; }
+
+    /* Header */
+    .ep-header {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 24px;
+    }
+    .ep-back-btn {
+      width: 38px; height: 38px; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.03);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: #6b6b72;
+      transition: all 0.18s; flex-shrink: 0;
+    }
+    .ep-back-btn:hover { color: #f0f0ee; border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); }
+
+    .ep-icon-badge {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .ep-icon-badge.edit   { background: rgba(232,255,71,0.1);  color: #e8ff47; }
+    .ep-icon-badge.create { background: rgba(34,197,94,0.1);   color: #22c55e; }
+
+    .ep-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(28px, 5vw, 40px);
+      letter-spacing: 0.02em; color: #f0f0ee; line-height: 1;
+    }
+    .ep-subtitle {
+      font-size: 12px; color: #6b6b72;
+      font-family: 'DM Mono', monospace; margin-top: 3px;
+    }
+
+    /* Error */
+    .ep-error {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 16px; border-radius: 12px;
+      background: rgba(255,68,68,0.06);
+      border: 1px solid rgba(255,68,68,0.2);
+      margin-bottom: 20px;
+    }
+    .ep-error p { font-size: 13px; color: #ff4444; }
+
+    /* Card wrapper */
+    .ep-card {
+      background: #111113;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+    .ep-card-body { padding: 28px 24px; }
+    @media (min-width: 640px) { .ep-card-body { padding: 36px 36px; } }
+
+    /* Tip */
+    .ep-tip {
+      margin-top: 16px; text-align: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px; color: #3a3a42;
+    }
+
+    /* ── Skeleton ── */
+    .ep-skel { animation: epPulse 1.5s ease-in-out infinite; }
+    @keyframes epPulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+    .ep-skel-line { background: #1a1a1d; border-radius: 6px; }
+    .ep-skel-block { background: #111113; border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 24px; }
+  `}</style>
+);
+
 const EditPostPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -54,11 +155,8 @@ const EditPostPage: React.FC = () => {
     try {
       setIsSubmitting(true);
       setError(null);
-      if (id) {
-        await apiService.updatePost(id, { ...postData, id });
-      } else {
-        await apiService.createPost(postData);
-      }
+      if (id) await apiService.updatePost(id, { ...postData, id });
+      else await apiService.createPost(postData);
       navigate("/");
     } catch {
       setError("Failed to save the post. Please try again.");
@@ -73,129 +171,163 @@ const EditPostPage: React.FC = () => {
 
   const isEdit = !!id;
 
-  /* ── Loading skeleton ── */
-  if (loading) {
+  /* ── Loading ── */
+  if (loading)
     return (
-      <div className="min-h-screen bg-background">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="animate-pulse space-y-5">
-            <div className="h-5 bg-default-100 rounded w-40" />
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-default-200 rounded-xl" />
-              <div className="space-y-2">
-                <div className="h-7 bg-default-200 rounded w-40" />
-                <div className="h-4 bg-default-100 rounded w-56" />
+      <>
+        <PageStyles />
+        <div className="ep-root">
+          <div className="ep-inner ep-skel">
+            <div
+              className="ep-skel-line"
+              style={{ height: 14, width: 180, marginBottom: 28 }}
+            />
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                marginBottom: 24,
+              }}
+            >
+              <div
+                className="ep-skel-line"
+                style={{ width: 38, height: 38, borderRadius: 10 }}
+              />
+              <div
+                className="ep-skel-line"
+                style={{ width: 38, height: 38, borderRadius: 10 }}
+              />
+              <div>
+                <div
+                  className="ep-skel-line"
+                  style={{ height: 28, width: 200, marginBottom: 6 }}
+                />
+                <div
+                  className="ep-skel-line"
+                  style={{ height: 12, width: 160 }}
+                />
               </div>
             </div>
-            <div className="bg-content1 border border-default-200 rounded-2xl p-6 space-y-4">
-              <div className="h-11 bg-default-100 rounded-xl" />
-              <div className="h-56 bg-default-100 rounded-xl" />
-              <div className="grid grid-cols-2 gap-4">
-                <div className="h-11 bg-default-100 rounded-xl" />
-                <div className="h-11 bg-default-100 rounded-xl" />
+            <div className="ep-skel-block">
+              <div
+                className="ep-skel-line"
+                style={{ height: 44, borderRadius: 10, marginBottom: 16 }}
+              />
+              <div
+                className="ep-skel-line"
+                style={{ height: 220, borderRadius: 10, marginBottom: 16 }}
+              />
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 14,
+                }}
+              >
+                <div
+                  className="ep-skel-line"
+                  style={{ height: 44, borderRadius: 10 }}
+                />
+                <div
+                  className="ep-skel-line"
+                  style={{ height: 44, borderRadius: 10 }}
+                />
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </>
     );
-  }
 
   return (
-    <div className="min-h-screen bg-background pb-24 sm:pb-10">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-1.5 mb-6 text-xs text-default-400">
-          <button
-            onClick={() => navigate("/")}
-            className="flex items-center gap-1 hover:text-foreground transition-colors px-1.5 py-1 rounded hover:bg-default-100"
-          >
-            <Home size={12} /> Home
-          </button>
-          {isEdit && post && (
-            <>
-              <span>/</span>
-              <button
-                onClick={() => navigate(`/posts/${id}`)}
-                className="hover:text-foreground transition-colors px-1.5 py-1 rounded hover:bg-default-100 max-w-[160px] truncate"
-              >
-                {post.title.length > 30
-                  ? post.title.substring(0, 30) + "…"
-                  : post.title}
-              </button>
-            </>
-          )}
-          <span>/</span>
-          <span className="text-foreground font-medium">
-            {isEdit ? "Edit" : "New Post"}
-          </span>
-        </nav>
-
-        {/* Header */}
-        <div className="flex items-center gap-3 sm:gap-4 mb-6">
-          <button
-            onClick={handleCancel}
-            className="w-10 h-10 rounded-xl border border-default-200 flex items-center justify-center text-default-500 hover:text-foreground hover:border-default-300 hover:bg-default-100 transition-all flex-shrink-0"
-          >
-            <ArrowLeft size={18} />
-          </button>
-
-          <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${isEdit ? "bg-primary/10" : "bg-success/10"}`}
-          >
-            {isEdit ? (
-              <Edit3 size={18} className="text-primary" />
-            ) : (
-              <Plus size={20} className="text-success" strokeWidth={2.5} />
+    <>
+      <PageStyles />
+      <div className="ep-root">
+        <div className="ep-inner">
+          {/* Breadcrumb */}
+          <nav className="ep-breadcrumb">
+            <button className="ep-breadcrumb-btn" onClick={() => navigate("/")}>
+              <Home size={11} /> Home
+            </button>
+            {isEdit && post && (
+              <>
+                <span className="ep-breadcrumb-sep">/</span>
+                <button
+                  className="ep-breadcrumb-btn"
+                  onClick={() => navigate(`/posts/${id}`)}
+                >
+                  {post.title.length > 28
+                    ? post.title.substring(0, 28) + "…"
+                    : post.title}
+                </button>
+              </>
             )}
+            <span className="ep-breadcrumb-sep">/</span>
+            <span className="ep-breadcrumb-current">
+              {isEdit ? "Edit" : "New Post"}
+            </span>
+          </nav>
+
+          {/* Header */}
+          <div className="ep-header">
+            <button className="ep-back-btn" onClick={handleCancel}>
+              <ArrowLeft size={17} />
+            </button>
+            <div className={`ep-icon-badge ${isEdit ? "edit" : "create"}`}>
+              {isEdit ? (
+                <Edit3 size={17} />
+              ) : (
+                <Plus size={19} strokeWidth={2.5} />
+              )}
+            </div>
+            <div>
+              <div className="ep-title">
+                {isEdit ? "Edit Post" : "Create New Post"}
+              </div>
+              <div className="ep-subtitle">
+                {isEdit
+                  ? "Update your content and save changes"
+                  : "Write and publish a new article"}
+              </div>
+            </div>
           </div>
 
-          <div>
-            <h1 className="text-xl sm:text-2xl font-black text-foreground">
-              {isEdit ? "Edit Post" : "Create New Post"}
-            </h1>
-            <p className="text-sm text-default-400 hidden sm:block">
-              {isEdit
-                ? "Update your content and save changes"
-                : "Write and publish a new article"}
-            </p>
+          {/* Error */}
+          {error && (
+            <div className="ep-error">
+              <AlertCircle
+                size={15}
+                color="#ff4444"
+                style={{ flexShrink: 0, marginTop: 1 }}
+              />
+              <p>{error}</p>
+            </div>
+          )}
+
+          {/* Form card */}
+          <div className="ep-card">
+            <div className="ep-card-body">
+              <PostForm
+                initialPost={post}
+                onSubmit={handleSubmit}
+                onCancel={handleCancel}
+                categories={categories}
+                availableTags={tags}
+                isSubmitting={isSubmitting}
+              />
+            </div>
           </div>
+
+          {/* Tip */}
+          <p className="ep-tip">
+            {isEdit
+              ? "◈ Changes will be saved to your existing post"
+              : "◈ Your post will be created as a draft by default"}
+          </p>
         </div>
-
-        {/* Error */}
-        {error && (
-          <div className="mb-5 flex items-start gap-3 rounded-xl bg-danger-50 border border-danger-200 px-4 py-3">
-            <AlertCircle
-              size={16}
-              className="text-danger mt-0.5 flex-shrink-0"
-            />
-            <p className="text-sm text-danger">{error}</p>
-          </div>
-        )}
-
-        {/* Form card */}
-        <div className="bg-content1 border border-default-200 rounded-2xl shadow-md overflow-hidden">
-          <div className="p-4 sm:p-6 lg:p-8">
-            <PostForm
-              initialPost={post}
-              onSubmit={handleSubmit}
-              onCancel={handleCancel}
-              categories={categories}
-              availableTags={tags}
-              isSubmitting={isSubmitting}
-            />
-          </div>
-        </div>
-
-        {/* Tip */}
-        <p className="mt-4 text-xs text-default-400 text-center">
-          💡{" "}
-          {isEdit
-            ? "Changes will be saved to your existing post."
-            : "Your post will be created as a draft by default."}
-        </p>
       </div>
-    </div>
+    </>
   );
 };
 

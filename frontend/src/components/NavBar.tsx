@@ -1,52 +1,363 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  Avatar,
-  Button,
-  Divider,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-  Navbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-} from "@nextui-org/react";
-import {
   BookDashed,
   Edit3,
   FileText,
   Home,
   LogOut,
   Menu,
-  Moon,
   NotebookPen,
   Plus,
   ShieldCheck,
-  Sun,
   User,
   UserCircle,
   X,
   Zap,
-  ChevronRight,
-  Info,
-  HelpCircle,
-  MessageSquare,
-  ChevronDown,
   Github,
   Twitter,
   Mail,
+  Info,
+  HelpCircle,
+  MessageSquare,
 } from "lucide-react";
 
 interface NavBarProps {
   isAuthenticated: boolean;
   isAdmin: boolean;
-  userProfile?: {
-    name: string;
-    avatar?: string;
-  };
+  userProfile?: { name: string; avatar?: string };
   onLogout: () => void;
+}
+
+const NavStyles = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap');
+
+    :root {
+      --nb-surface: #111113;
+      --nb-surface2: #18181b;
+      --nb-border: rgba(255,255,255,0.07);
+      --nb-accent: #e8ff47;
+      --nb-danger: #ff4444;
+      --nb-text: #f0f0ee;
+      --nb-muted: #6b6b72;
+      --nb-violet: #a78bfa;
+    }
+
+    /* ═══════ DESKTOP BAR ═══════ */
+    .nb-bar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,11,0.95);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--nb-border);
+      font-family: 'DM Sans', sans-serif;
+    }
+    .nb-inner {
+      max-width: 1200px; margin: 0 auto;
+      padding: 0 24px;
+      display: flex; align-items: center; height: 60px; gap: 2px;
+    }
+
+    /* Logo */
+    .nb-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; margin-right: 16px; flex-shrink: 0;
+    }
+    .nb-logo-mark {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: var(--nb-accent);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px; color: #0a0a0b; flex-shrink: 0;
+      position: relative;
+    }
+    .nb-logo-mark::after {
+      content: ''; position: absolute; inset: -2px;
+      border-radius: 12px; border: 1px solid rgba(232,255,71,0.25);
+    }
+    .nb-logo-text { display: flex; flex-direction: column; line-height: 1; }
+    .nb-logo-top {
+      font-family: 'DM Mono', monospace; font-size: 9px;
+      letter-spacing: 0.18em; text-transform: uppercase; color: var(--nb-muted);
+    }
+    .nb-logo-bottom {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 19px; letter-spacing: 0.04em; color: var(--nb-text);
+    }
+
+    .nb-divider { width: 1px; height: 20px; background: var(--nb-border); margin: 0 6px; flex-shrink: 0; }
+    .nb-spacer { flex: 1; }
+
+    /* Nav link */
+    .nb-link {
+      padding: 6px 12px; border-radius: 8px;
+      font-size: 13px; font-weight: 500; color: var(--nb-muted);
+      text-decoration: none; transition: all 0.18s; white-space: nowrap;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .nb-link:hover { color: var(--nb-text); background: rgba(255,255,255,0.05); }
+    .nb-link.active { color: var(--nb-accent); background: rgba(232,255,71,0.08); font-weight: 700; }
+
+    /* Buttons */
+    .nb-btn-ghost {
+      padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      color: var(--nb-muted); background: transparent; border: 1px solid var(--nb-border);
+      cursor: pointer; transition: all 0.18s; font-family: 'DM Sans', sans-serif;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .nb-btn-ghost:hover { color: var(--nb-text); border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.04); }
+
+    .nb-btn-primary {
+      padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 700;
+      color: #0a0a0b; background: var(--nb-accent); border: none; cursor: pointer;
+      transition: all 0.18s; font-family: 'DM Sans', sans-serif;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .nb-btn-primary:hover { background: #f5ff6e; transform: translateY(-1px); }
+
+    /* Avatar */
+    .nb-avatar-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 1.5px solid var(--nb-border); background: rgba(232,255,71,0.1);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s; overflow: hidden;
+      font-family: 'Bebas Neue', sans-serif; font-size: 14px; color: var(--nb-accent); flex-shrink: 0;
+    }
+    .nb-avatar-btn:hover { border-color: var(--nb-accent); transform: scale(1.05); }
+    .nb-avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* User dropdown */
+    .nb-dropdown { position: relative; display: inline-block; }
+    .nb-dropdown-menu {
+      position: absolute; top: calc(100% + 10px); right: 0;
+      min-width: 220px; background: var(--nb-surface);
+      border: 1px solid var(--nb-border); border-radius: 14px; padding: 8px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7); z-index: 200;
+      animation: dropIn 0.18s cubic-bezier(0.22,1,0.36,1);
+    }
+    @keyframes dropIn {
+      from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .nb-dd-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 9px; font-size: 13px; font-weight: 500;
+      color: var(--nb-muted); text-decoration: none; cursor: pointer;
+      transition: all 0.15s; background: none; border: none; width: 100%;
+      font-family: 'DM Sans', sans-serif; text-align: left;
+    }
+    .nb-dd-item:hover { color: var(--nb-text); background: rgba(255,255,255,0.05); }
+    .nb-dd-item.danger { color: var(--nb-danger); }
+    .nb-dd-item.danger:hover { background: rgba(255,68,68,0.08); }
+    .nb-dd-item.admin-item { color: var(--nb-violet); }
+    .nb-dd-item.admin-item:hover { background: rgba(167,139,250,0.08); }
+    .nb-dd-sep { height: 1px; background: var(--nb-border); margin: 6px 0; }
+    .nb-dd-header {
+      padding: 8px 12px 4px; font-family: 'DM Mono', monospace;
+      font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--nb-muted);
+    }
+    .nb-dd-user-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px 12px; }
+    .nb-dd-user-name { font-weight: 700; font-size: 14px; color: var(--nb-text); line-height: 1; }
+    .nb-dd-user-role {
+      font-family: 'DM Mono', monospace; font-size: 10px; color: var(--nb-accent);
+      margin-top: 3px; display: flex; align-items: center; gap: 3px;
+    }
+
+    .nb-admin-badge {
+      display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px;
+      border-radius: 7px; font-size: 11px; font-weight: 700; color: var(--nb-violet);
+      background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.2);
+      text-decoration: none; font-family: 'DM Mono', monospace; transition: all 0.18s;
+    }
+    .nb-admin-badge:hover { background: rgba(167,139,250,0.18); }
+
+    /* ═══════ MOBILE TOP BAR ═══════ */
+    .nb-mobile-bar {
+      display: none; position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,11,0.95); backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--nb-border);
+    }
+    .nb-mobile-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px; height: 56px;
+    }
+    .nb-hamburger {
+      width: 38px; height: 38px; border-radius: 10px;
+      border: 1px solid var(--nb-border); background: rgba(255,255,255,0.03);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.18s; color: var(--nb-muted);
+    }
+    .nb-hamburger:hover { color: var(--nb-text); border-color: rgba(255,255,255,0.15); }
+
+    /* ═══════ DRAWER (mobile only) ═══════ */
+    .nb-overlay {
+      position: fixed; inset: 0; top: 56px; z-index: 89;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+      transition: opacity 0.25s;
+    }
+    .nb-overlay.hidden { opacity: 0; pointer-events: none; }
+
+    .nb-drawer {
+      position: fixed; inset-x: 12px; top: 68px; z-index: 90;
+      background: var(--nb-surface); border: 1px solid var(--nb-border);
+      border-radius: 18px; padding: 16px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.75);
+      max-height: calc(100vh - 100px); overflow-y: auto;
+      transition: all 0.28s cubic-bezier(0.22,1,0.36,1);
+    }
+    .nb-drawer.hidden { opacity: 0; transform: translateY(-12px) scale(0.97); pointer-events: none; }
+    .nb-drawer::-webkit-scrollbar { display: none; }
+
+    .nb-drawer-user {
+      display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+      border-radius: 12px; background: rgba(232,255,71,0.05);
+      border: 1px solid rgba(232,255,71,0.1); margin-bottom: 14px;
+    }
+    .nb-drawer-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(232,255,71,0.12); border: 1.5px solid rgba(232,255,71,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--nb-accent);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .nb-drawer-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .nb-drawer-label {
+      font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--nb-muted);
+      padding: 10px 4px 4px;
+    }
+    .nb-drawer-link {
+      display: flex; align-items: center; gap: 10px; padding: 11px 14px;
+      border-radius: 10px; font-size: 14px; font-weight: 500; color: var(--nb-muted);
+      text-decoration: none; background: none; border: none; cursor: pointer;
+      width: 100%; font-family: 'DM Sans', sans-serif; text-align: left; transition: all 0.15s;
+    }
+    .nb-drawer-link:hover { color: var(--nb-text); background: rgba(255,255,255,0.05); }
+    .nb-drawer-link.active { color: var(--nb-accent); background: rgba(232,255,71,0.07); font-weight: 700; }
+    .nb-drawer-link.admin-item { color: var(--nb-violet); }
+    .nb-drawer-link.admin-item:hover { background: rgba(167,139,250,0.08); }
+    .nb-drawer-link .active-dot { margin-left: auto; width: 6px; height: 6px; border-radius: 50%; background: var(--nb-accent); }
+
+    .nb-drawer-sep { height: 1px; background: var(--nb-border); margin: 10px 0; }
+
+    .nb-drawer-socials { display: flex; gap: 6px; padding: 4px 0 6px; flex-wrap: wrap; }
+    .nb-social-btn {
+      display: flex; align-items: center; gap: 5px; padding: 5px 10px;
+      border-radius: 7px; font-size: 11px; font-weight: 600; color: var(--nb-muted);
+      text-decoration: none; background: rgba(255,255,255,0.04);
+      border: 1px solid var(--nb-border); transition: all 0.15s; font-family: 'DM Mono', monospace;
+    }
+    .nb-social-btn:hover { color: var(--nb-text); border-color: rgba(255,255,255,0.15); }
+
+    .nb-drawer-cta-primary {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 13px; border-radius: 12px; font-size: 14px; font-weight: 700;
+      color: #0a0a0b; background: var(--nb-accent); border: none; cursor: pointer;
+      text-decoration: none; font-family: 'DM Sans', sans-serif; transition: all 0.18s; margin-bottom: 8px;
+    }
+    .nb-drawer-cta-primary:hover { background: #f5ff6e; }
+    .nb-drawer-cta-danger {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 600;
+      color: var(--nb-danger); background: rgba(255,68,68,0.06);
+      border: 1px solid rgba(255,68,68,0.2); cursor: pointer;
+      font-family: 'DM Sans', sans-serif; transition: all 0.18s;
+    }
+    .nb-drawer-cta-danger:hover { background: rgba(255,68,68,0.12); }
+    .nb-drawer-cta-secondary {
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 600;
+      color: var(--nb-muted); border: 1px solid var(--nb-border); background: transparent;
+      text-decoration: none; font-family: 'DM Sans', sans-serif; transition: all 0.18s; margin-bottom: 8px;
+    }
+    .nb-drawer-cta-secondary:hover { color: var(--nb-text); border-color: rgba(255,255,255,0.15); }
+
+    /* ═══════ MOBILE BOTTOM NAV ═══════ */
+    .nb-bottom {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 80;
+      background: rgba(10,10,11,0.96); backdrop-filter: blur(24px);
+      border-top: 1px solid var(--nb-border); height: 64px; padding: 0 8px;
+      align-items: center; justify-content: space-around; font-family: 'DM Sans', sans-serif;
+    }
+    .nb-bottom-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 8px 16px; border-radius: 12px; text-decoration: none;
+      background: none; border: none; cursor: pointer; transition: all 0.18s; position: relative;
+    }
+    .nb-bottom-item span { font-size: 10px; font-weight: 600; color: var(--nb-muted); }
+    .nb-bottom-item svg { color: var(--nb-muted); transition: all 0.18s; }
+    .nb-bottom-item.active svg { color: var(--nb-accent); transform: scale(1.1); }
+    .nb-bottom-item.active span { color: var(--nb-accent); }
+    .nb-bottom-item.active::after {
+      content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 20px; height: 2px; background: var(--nb-accent); border-radius: 1px;
+    }
+    .nb-bottom-fab {
+      width: 52px; height: 52px; border-radius: 16px; background: var(--nb-accent);
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none; transition: all 0.18s; transform: translateY(-6px);
+      box-shadow: 0 8px 24px rgba(232,255,71,0.35);
+    }
+    .nb-bottom-fab:hover { transform: translateY(-9px); box-shadow: 0 12px 32px rgba(232,255,71,0.45); }
+
+    .nb-mobile-spacer { display: none; height: 64px; }
+
+    /* ═══════ RESPONSIVE ═══════ */
+    @media (max-width: 768px) {
+      .nb-bar { display: none; }
+      .nb-mobile-bar { display: block; }
+      .nb-bottom { display: flex; }
+      .nb-mobile-spacer { display: block; }
+    }
+  `}</style>
+);
+
+function getInitials(name?: string) {
+  if (!name) return "U";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function AvatarEl({
+  src,
+  name,
+  size = 34,
+}: {
+  src?: string;
+  name?: string;
+  size?: number;
+}) {
+  if (src)
+    return (
+      <img
+        src={src}
+        alt={name}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          objectFit: "cover",
+        }}
+      />
+    );
+  return (
+    <span
+      style={{
+        fontFamily: "'Bebas Neue',sans-serif",
+        fontSize: size * 0.45,
+        color: "var(--nb-accent)",
+      }}
+    >
+      {getInitials(name)}
+    </span>
+  );
 }
 
 const NavBar: React.FC<NavBarProps> = ({
@@ -56,87 +367,53 @@ const NavBar: React.FC<NavBarProps> = ({
   onLogout,
 }) => {
   const location = useLocation();
-  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
-  const [moreOpen, setMoreOpen] = React.useState(false);
-
-  const [isDark, setIsDark] = React.useState(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved) return saved === "dark";
-    return document.documentElement.classList.contains("dark");
-  });
-
-  const toggleTheme = () => {
-    const newDark = !isDark;
-    setIsDark(newDark);
-    localStorage.setItem("theme", newDark ? "dark" : "light");
-    if (newDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  };
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [userOpen, setUserOpen] = React.useState(false);
+  const userRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved === "dark") {
-      document.documentElement.classList.add("dark");
-      setIsDark(true);
-    } else if (saved === "light") {
-      document.documentElement.classList.remove("dark");
-      setIsDark(false);
-    }
+    const handler = (e: MouseEvent) => {
+      if (userRef.current && !userRef.current.contains(e.target as Node))
+        setUserOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   React.useEffect(() => {
-    setIsDrawerOpen(false);
+    setDrawerOpen(false);
   }, [location.pathname]);
 
-  const navLinks = [
-    { name: "Home", path: "/", icon: <Home size={18} /> },
+  const isActive = (path: string) => location.pathname === path;
+
+  const mainNavLinks = [
+    { name: "Home", path: "/", icon: <Home size={15} /> },
+    { name: "About", path: "/about", icon: <Info size={15} /> },
+    { name: "Help", path: "/help", icon: <HelpCircle size={15} /> },
+    { name: "Contact", path: "/contact", icon: <MessageSquare size={15} /> },
     ...(isAdmin
       ? [
           {
             name: "Categories",
             path: "/categories",
-            icon: <FileText size={18} />,
+            icon: <FileText size={15} />,
           },
-          { name: "Tags", path: "/tags", icon: <BookDashed size={18} /> },
+          { name: "Tags", path: "/tags", icon: <BookDashed size={15} /> },
         ]
       : []),
   ];
 
-  const moreLinks = [
-    {
-      name: "About",
-      path: "/about",
-      icon: <Info size={16} />,
-      desc: "Who we are",
-    },
-    {
-      name: "Help Centre",
-      path: "/help",
-      icon: <HelpCircle size={16} />,
-      desc: "FAQs & guides",
-    },
-    {
-      name: "Contact",
-      path: "/contact",
-      icon: <MessageSquare size={16} />,
-      desc: "Get in touch",
-    },
-  ];
-
   const userMenuLinks = [
-    { name: "My Profile", path: "/profile", icon: <UserCircle size={17} /> },
-    { name: "My Posts", path: "/my-posts", icon: <FileText size={17} /> },
-    { name: "My Notes", path: "/notes", icon: <NotebookPen size={17} /> },
-    { name: "My Drafts", path: "/posts/drafts", icon: <Edit3 size={17} /> },
+    { name: "My Profile", path: "/profile", icon: <UserCircle size={15} /> },
+    { name: "My Posts", path: "/my-posts", icon: <FileText size={15} /> },
+    { name: "My Notes", path: "/notes", icon: <NotebookPen size={15} /> },
+    { name: "My Drafts", path: "/posts/drafts", icon: <Edit3 size={15} /> },
     ...(isAdmin
       ? [
           {
             name: "Review Queue",
             path: "/admin",
-            icon: <ShieldCheck size={17} />,
+            icon: <ShieldCheck size={15} />,
             isAdmin: true,
           },
         ]
@@ -145,734 +422,430 @@ const NavBar: React.FC<NavBarProps> = ({
 
   return (
     <>
-      {/* ══════════════════════════════════════
-          DESKTOP NAVBAR
-      ══════════════════════════════════════ */}
-      <Navbar
-        isBordered
-        maxWidth="xl"
-        classNames={{
-          base: "hidden sm:flex sticky top-0 z-[100] bg-background/90 backdrop-blur-xl border-b border-default-200/60 shadow-sm",
-          wrapper: "px-4 sm:px-6 lg:px-8 max-w-7xl",
-        }}
-      >
-        <NavbarContent justify="start">
-          <NavbarBrand>
-            <Link to="/" className="flex items-center gap-3 mr-6">
-              <LogoMark size="md" />
-              <div className="flex flex-col leading-none">
-                <span className="text-[10px] font-black tracking-[0.25em] uppercase text-primary">
-                  Lilawat
-                </span>
-                <span className="text-[17px] font-black tracking-tight text-foreground">
-                  TechBlog
-                </span>
-              </div>
-            </Link>
-          </NavbarBrand>
+      <NavStyles />
 
-          <div className="w-px h-5 bg-default-300 mr-2" />
+      {/* ═══════════════════════════════════════
+          DESKTOP NAVBAR — all links visible
+      ═══════════════════════════════════════ */}
+      <nav className="nb-bar">
+        <div className="nb-inner">
+          {/* Logo */}
+          <Link to="/" className="nb-logo">
+            <div className="nb-logo-mark">LT</div>
+            <div className="nb-logo-text">
+              <span className="nb-logo-top">Lilawat</span>
+              <span className="nb-logo-bottom">TechBlog</span>
+            </div>
+          </Link>
 
-          {navLinks.map((item) => {
-            const active = location.pathname === item.path;
-            return (
-              <NavbarItem key={item.path} isActive={active}>
-                <Link
-                  to={item.path}
-                  className={`relative px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                    active
-                      ? "text-primary bg-primary/10"
-                      : "text-default-600 hover:text-foreground hover:bg-default-100"
-                  }`}
-                >
-                  {item.name}
-                  {active && (
-                    <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-4 h-[2px] bg-gradient-to-r from-primary to-secondary rounded-full" />
-                  )}
-                </Link>
-              </NavbarItem>
-            );
-          })}
+          <div className="nb-divider" />
 
-          {/* More dropdown */}
-          <NavbarItem>
-            <Dropdown
-              isOpen={moreOpen}
-              onOpenChange={setMoreOpen}
-              placement="bottom-start"
+          {/* All nav links directly in bar */}
+          {mainNavLinks.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`nb-link ${isActive(item.path) ? "active" : ""}`}
             >
-              <DropdownTrigger>
-                <button
-                  className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                    moreOpen
-                      ? "text-primary bg-primary/10"
-                      : "text-default-600 hover:text-foreground hover:bg-default-100"
-                  }`}
-                >
-                  More
-                  <ChevronDown
-                    size={14}
-                    className={`transition-transform duration-200 ${moreOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
-              </DropdownTrigger>
-              <DropdownMenu
-                aria-label="More links"
-                variant="flat"
-                classNames={{ base: "p-2 min-w-[200px]" }}
-              >
-                {moreLinks.map((link) => (
-                  <DropdownItem
-                    key={link.path}
-                    startContent={
-                      <span className="text-default-400">{link.icon}</span>
-                    }
-                    description={link.desc}
-                    className="py-2"
-                    textValue={link.name}
-                  >
-                    <Link
-                      to={link.path}
-                      className="w-full block font-semibold text-sm"
-                    >
-                      {link.name}
-                    </Link>
-                  </DropdownItem>
-                ))}
+              {item.name}
+            </Link>
+          ))}
 
-                <DropdownItem
-                  key="div"
-                  isReadOnly
-                  className="p-0 h-px bg-default-100 my-1 opacity-100"
-                  textValue="-"
-                />
+          <div className="nb-spacer" />
 
-                {/* Social links */}
-                <DropdownItem
-                  key="socials"
-                  isReadOnly
-                  className="opacity-100 cursor-default"
-                  textValue="Socials"
-                >
-                  <div className="flex items-center gap-2 py-1">
-                    <a
-                      href="https://github.com"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center gap-1.5 text-xs font-semibold text-default-500 hover:text-foreground transition-colors px-2 py-1 rounded-lg hover:bg-default-100"
-                    >
-                      <Github size={13} /> GitHub
-                    </a>
-                    <a
-                      href="https://twitter.com"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center gap-1.5 text-xs font-semibold text-default-500 hover:text-foreground transition-colors px-2 py-1 rounded-lg hover:bg-default-100"
-                    >
-                      <Twitter size={13} /> Twitter
-                    </a>
-                  </div>
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          </NavbarItem>
-        </NavbarContent>
-
-        <NavbarContent justify="end" className="gap-2">
-          <NavbarItem>
-            <ThemeToggleBtn isDark={isDark} toggleTheme={toggleTheme} />
-          </NavbarItem>
-
+          {/* Right side */}
           {isAuthenticated ? (
             <>
               {isAdmin && (
-                <NavbarItem className="hidden md:flex">
-                  <Button
-                    as={Link}
-                    to="/admin"
-                    variant="flat"
-                    size="sm"
-                    startContent={<ShieldCheck size={15} />}
-                    className="font-semibold text-violet-600 bg-violet-100/60 hover:bg-violet-100 dark:bg-violet-900/30"
-                  >
-                    Review Queue
-                  </Button>
-                </NavbarItem>
+                <Link
+                  to="/admin"
+                  className="nb-admin-badge"
+                  style={{ marginRight: 6 }}
+                >
+                  <ShieldCheck size={12} /> Admin
+                </Link>
               )}
 
-              <NavbarItem>
-                <Button
-                  as={Link}
-                  to="/posts/new"
-                  size="sm"
-                  startContent={<Plus size={16} strokeWidth={2.5} />}
-                  className="font-black text-white bg-gradient-to-r from-primary to-secondary shadow-md shadow-primary/30 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+              <Link
+                to="/posts/new"
+                className="nb-btn-primary"
+                style={{ marginRight: 8 }}
+              >
+                <Plus size={15} strokeWidth={2.5} /> New Post
+              </Link>
+
+              {/* User dropdown */}
+              <div className="nb-dropdown" ref={userRef}>
+                <button
+                  className="nb-avatar-btn"
+                  onClick={() => setUserOpen(!userOpen)}
                 >
-                  New Post
-                </Button>
-              </NavbarItem>
-
-              <NavbarItem>
-                <Dropdown placement="bottom-end">
-                  <DropdownTrigger>
-                    <Avatar
-                      isBordered
-                      as="button"
-                      size="sm"
-                      src={userProfile?.avatar}
-                      name={userProfile?.name}
-                      className="cursor-pointer hover:scale-110 transition-transform"
-                      classNames={{
-                        base: "bg-gradient-to-br from-primary/20 to-secondary/20",
-                      }}
-                    />
-                  </DropdownTrigger>
-                  <DropdownMenu
-                    aria-label="User menu"
-                    variant="flat"
-                    classNames={{ base: "p-2 min-w-[220px]" }}
-                  >
-                    <DropdownItem
-                      key="user-info"
-                      isReadOnly
-                      className="opacity-100 cursor-default mb-1"
-                      textValue="User Info"
-                    >
-                      <div className="flex items-center gap-3 py-1">
-                        <Avatar
-                          size="sm"
-                          src={userProfile?.avatar}
-                          name={userProfile?.name}
-                          classNames={{
-                            base: "bg-gradient-to-br from-primary/20 to-secondary/20 flex-shrink-0",
-                          }}
-                        />
-                        <div>
-                          <p className="font-black text-sm text-foreground">
-                            {userProfile?.name || "User"}
-                          </p>
-                          {isAdmin ? (
-                            <span className="flex items-center gap-1 text-[10px] font-bold text-primary">
-                              <Zap size={9} /> Admin
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-default-400 font-semibold">
-                              Member
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </DropdownItem>
-
-                    <DropdownItem
-                      key="div1"
-                      isReadOnly
-                      className="p-0 h-px bg-default-100 my-1 opacity-100"
-                      textValue="-"
-                    />
-
-                    {userMenuLinks.map((link) => (
-                      <DropdownItem
-                        key={link.path}
-                        startContent={
-                          <span
-                            className={
-                              link.isAdmin
-                                ? "text-violet-500"
-                                : "text-default-400"
-                            }
-                          >
-                            {link.icon}
-                          </span>
-                        }
-                        className={`py-2 font-medium ${link.isAdmin ? "text-violet-600" : ""}`}
-                        textValue={link.name}
-                      >
-                        <Link to={link.path} className="w-full block">
-                          {link.name}
-                        </Link>
-                      </DropdownItem>
-                    ))}
-
-                    <DropdownItem
-                      key="div-more"
-                      isReadOnly
-                      className="p-0 h-px bg-default-100 my-1 opacity-100"
-                      textValue="-"
-                    />
-
-                    {/* About/Help in user menu too */}
-                    <DropdownItem
-                      key="help"
-                      startContent={
-                        <HelpCircle size={15} className="text-default-400" />
-                      }
-                      className="py-2 font-medium"
-                      textValue="Help Centre"
-                    >
-                      <Link to="/help" className="w-full block">
-                        Help Centre
-                      </Link>
-                    </DropdownItem>
-
-                    <DropdownItem
-                      key="theme"
-                      startContent={
-                        isDark ? (
-                          <Sun size={15} className="text-amber-400" />
-                        ) : (
-                          <Moon size={15} className="text-slate-500" />
-                        )
-                      }
-                      className="py-2 font-medium"
-                      onPress={toggleTheme}
-                      textValue="Toggle Theme"
-                    >
-                      {isDark ? "Light Mode" : "Dark Mode"}
-                    </DropdownItem>
-
-                    <DropdownItem
-                      key="div2"
-                      isReadOnly
-                      className="p-0 h-px bg-default-100 my-1 opacity-100"
-                      textValue="-"
-                    />
-
-                    <DropdownItem
-                      key="logout"
-                      startContent={<LogOut size={15} />}
-                      className="text-danger py-2 font-semibold"
-                      color="danger"
-                      onPress={onLogout}
-                    >
-                      Log Out
-                    </DropdownItem>
-                  </DropdownMenu>
-                </Dropdown>
-              </NavbarItem>
-            </>
-          ) : (
-            <>
-              <NavbarItem>
-                <Button
-                  as={Link}
-                  to="/register"
-                  variant="flat"
-                  size="sm"
-                  className="font-semibold text-default-600 bg-default-100 hover:bg-default-200"
-                >
-                  Sign Up
-                </Button>
-              </NavbarItem>
-              <NavbarItem>
-                <Button
-                  as={Link}
-                  to="/login"
-                  size="sm"
-                  startContent={<User size={15} />}
-                  className="font-black text-white bg-gradient-to-r from-primary to-secondary shadow-md shadow-primary/30 hover:shadow-lg hover:-translate-y-0.5 transition-all"
-                >
-                  Log In
-                </Button>
-              </NavbarItem>
-            </>
-          )}
-        </NavbarContent>
-      </Navbar>
-
-      {/* ══════════════════════════════════════
-          MOBILE TOP BAR
-      ══════════════════════════════════════ */}
-      <div className="sm:hidden sticky top-0 z-[100] bg-background/95 backdrop-blur-xl border-b border-default-200/60 shadow-sm">
-        <div className="flex items-center justify-between px-4 h-14">
-          <Link to="/" className="flex items-center gap-2.5">
-            <LogoMark size="sm" />
-            <span className="text-[15px] font-black tracking-tight text-foreground">
-              LilawatTechBlog
-            </span>
-          </Link>
-
-          <div className="flex items-center gap-2">
-            <ThemeToggleBtn isDark={isDark} toggleTheme={toggleTheme} />
-            <button
-              onClick={() => setIsDrawerOpen(!isDrawerOpen)}
-              className="w-9 h-9 rounded-xl flex items-center justify-center bg-default-100 hover:bg-default-200 active:bg-default-300 transition-colors"
-              aria-label="Toggle menu"
-            >
-              {isDrawerOpen ? <X size={18} /> : <Menu size={18} />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ══════════════════════════════════════
-          MOBILE DRAWER
-      ══════════════════════════════════════ */}
-      <>
-        <div
-          className={`sm:hidden fixed inset-0 top-14 z-[89] bg-black/50 backdrop-blur-sm transition-opacity duration-300 ${
-            isDrawerOpen
-              ? "opacity-100 pointer-events-auto"
-              : "opacity-0 pointer-events-none"
-          }`}
-          onClick={() => setIsDrawerOpen(false)}
-        />
-
-        <div
-          className={`sm:hidden fixed inset-x-0 top-14 z-[90] transition-all duration-300 ease-in-out ${
-            isDrawerOpen
-              ? "translate-y-0 opacity-100"
-              : "-translate-y-3 opacity-0 pointer-events-none"
-          }`}
-        >
-          <div className="bg-background/98 backdrop-blur-2xl border-b border-default-200/60 shadow-2xl rounded-b-3xl mx-3 overflow-hidden">
-            <div className="p-4 space-y-3 max-h-[80vh] overflow-y-auto">
-              {/* User card */}
-              {isAuthenticated && (
-                <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-br from-primary/8 to-secondary/5 border border-primary/15">
-                  <Avatar
+                  <AvatarEl
                     src={userProfile?.avatar}
                     name={userProfile?.name}
-                    size="md"
-                    classNames={{
-                      base: "bg-gradient-to-br from-primary/20 to-secondary/20 flex-shrink-0",
-                    }}
+                    size={34}
                   />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-black text-sm text-foreground truncate">
-                      {userProfile?.name || "User"}
-                    </p>
-                    {isAdmin ? (
-                      <span className="flex items-center gap-1 text-[11px] font-bold text-primary">
-                        <Zap size={10} /> Admin
-                      </span>
-                    ) : (
-                      <p className="text-xs text-default-400">Member</p>
-                    )}
-                  </div>
-                  <ChevronRight
-                    size={16}
-                    className="text-default-300 flex-shrink-0"
-                  />
-                </div>
-              )}
+                </button>
+                {userOpen && (
+                  <div className="nb-dropdown-menu">
+                    {/* User info card */}
+                    <div className="nb-dd-user-card">
+                      <div
+                        className="nb-avatar-btn"
+                        style={{ pointerEvents: "none" }}
+                      >
+                        <AvatarEl
+                          src={userProfile?.avatar}
+                          name={userProfile?.name}
+                          size={34}
+                        />
+                      </div>
+                      <div>
+                        <div className="nb-dd-user-name">
+                          {userProfile?.name || "User"}
+                        </div>
+                        {isAdmin ? (
+                          <div className="nb-dd-user-role">
+                            <Zap size={9} /> Admin
+                          </div>
+                        ) : (
+                          <div
+                            style={{
+                              fontSize: 11,
+                              color: "var(--nb-muted)",
+                              fontFamily: "'DM Mono',monospace",
+                              marginTop: 3,
+                            }}
+                          >
+                            Member
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
-              {/* Nav links */}
-              <div className="space-y-1">
-                <p className="text-[10px] font-black tracking-[0.2em] uppercase text-default-400 px-2 pb-1">
-                  Navigation
-                </p>
-                {navLinks.map((item) => {
-                  const active = location.pathname === item.path;
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      onClick={() => setIsDrawerOpen(false)}
-                      className={`flex items-center justify-between w-full rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
-                        active
-                          ? "bg-primary/10 text-primary"
-                          : "text-default-600 hover:bg-default-100 hover:text-foreground"
-                      }`}
-                    >
-                      <span className="flex items-center gap-3">
-                        <span
-                          className={
-                            active ? "text-primary" : "text-default-400"
-                          }
-                        >
-                          {item.icon}
-                        </span>
-                        {item.name}
-                      </span>
-                      {active && (
-                        <span className="w-2 h-2 rounded-full bg-primary" />
-                      )}
-                    </Link>
-                  );
-                })}
-              </div>
+                    <div className="nb-dd-sep" />
+                    <div className="nb-dd-header">My Account</div>
 
-              {/* User account links */}
-              {isAuthenticated && (
-                <>
-                  <Divider />
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-black tracking-[0.2em] uppercase text-default-400 px-2 pb-1">
-                      My Account
-                    </p>
                     {userMenuLinks.map((link) => (
                       <Link
                         key={link.path}
                         to={link.path}
-                        onClick={() => setIsDrawerOpen(false)}
-                        className={`flex items-center gap-3 w-full rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
-                          link.isAdmin
-                            ? "text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20"
-                            : "text-default-600 hover:bg-default-100 hover:text-foreground"
-                        }`}
+                        className={`nb-dd-item ${link.isAdmin ? "admin-item" : ""}`}
+                        onClick={() => setUserOpen(false)}
                       >
                         <span
-                          className={
-                            link.isAdmin
-                              ? "text-violet-500"
-                              : "text-default-400"
-                          }
+                          style={{
+                            color: link.isAdmin
+                              ? "var(--nb-violet)"
+                              : "var(--nb-muted)",
+                          }}
                         >
                           {link.icon}
                         </span>
                         {link.name}
                       </Link>
                     ))}
-                  </div>
-                </>
-              )}
 
-              <Divider />
+                    <div className="nb-dd-sep" />
 
-              {/* More / Info links */}
-              <div className="space-y-1">
-                <p className="text-[10px] font-black tracking-[0.2em] uppercase text-default-400 px-2 pb-1">
-                  More
-                </p>
-                {moreLinks.map((link) => (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    onClick={() => setIsDrawerOpen(false)}
-                    className="flex items-center gap-3 w-full rounded-xl px-4 py-3 text-sm font-semibold text-default-600 hover:bg-default-100 hover:text-foreground transition-all duration-200"
-                  >
-                    <span className="text-default-400">{link.icon}</span>
-                    {link.name}
-                    <span className="ml-auto text-xs text-default-400 font-normal">
-                      {link.desc}
-                    </span>
-                  </Link>
-                ))}
-
-                {/* Social links row */}
-                <div className="flex items-center gap-2 px-4 py-2">
-                  <a
-                    href="https://github.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-1.5 text-xs font-semibold text-default-500 hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg bg-default-100 hover:bg-default-200"
-                  >
-                    <Github size={13} /> GitHub
-                  </a>
-                  <a
-                    href="https://twitter.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-1.5 text-xs font-semibold text-default-500 hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg bg-default-100 hover:bg-default-200"
-                  >
-                    <Twitter size={13} /> Twitter
-                  </a>
-                  <a
-                    href="mailto:contact@lilawattech.com"
-                    className="flex items-center gap-1.5 text-xs font-semibold text-default-500 hover:text-foreground transition-colors px-2.5 py-1.5 rounded-lg bg-default-100 hover:bg-default-200"
-                  >
-                    <Mail size={13} /> Email
-                  </a>
-                </div>
-              </div>
-
-              <Divider />
-
-              {/* Bottom CTAs */}
-              <div className="space-y-2 pb-1">
-                {isAuthenticated ? (
-                  <>
-                    <Link
-                      to="/posts/new"
-                      onClick={() => setIsDrawerOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full rounded-xl py-3 text-sm font-black text-white bg-gradient-to-r from-primary to-secondary shadow-lg shadow-primary/25 hover:-translate-y-0.5 transition-all duration-200"
-                    >
-                      <Plus size={18} strokeWidth={2.5} /> Create New Post
-                    </Link>
                     <button
+                      className="nb-dd-item danger"
                       onClick={() => {
-                        setIsDrawerOpen(false);
+                        setUserOpen(false);
                         onLogout();
                       }}
-                      className="flex items-center justify-center gap-2 w-full rounded-xl py-3 text-sm font-semibold text-danger bg-danger/8 hover:bg-danger/15 border border-danger/20 transition-all duration-200"
                     >
-                      <LogOut size={17} /> Log Out
+                      <LogOut size={14} /> Log Out
                     </button>
-                  </>
-                ) : (
-                  <>
-                    <Link
-                      to="/register"
-                      onClick={() => setIsDrawerOpen(false)}
-                      className="flex items-center justify-center w-full rounded-xl py-3 text-sm font-black text-foreground bg-default-100 hover:bg-default-200 transition-all duration-200"
-                    >
-                      Create Account
-                    </Link>
-                    <Link
-                      to="/login"
-                      onClick={() => setIsDrawerOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full rounded-xl py-3 text-sm font-black text-white bg-gradient-to-r from-primary to-secondary shadow-lg shadow-primary/25 transition-all duration-200"
-                    >
-                      <User size={17} /> Log In
-                    </Link>
-                  </>
+                  </div>
                 )}
               </div>
-            </div>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/register"
+                className="nb-btn-ghost"
+                style={{ marginRight: 6 }}
+              >
+                Sign Up
+              </Link>
+              <Link to="/login" className="nb-btn-primary">
+                <User size={14} /> Log In
+              </Link>
+            </>
+          )}
+        </div>
+      </nav>
+
+      {/* ═══════════════════════════════════════
+          MOBILE TOP BAR
+      ═══════════════════════════════════════ */}
+      <div className="nb-mobile-bar">
+        <div className="nb-mobile-inner">
+          <Link to="/" className="nb-logo">
+            <div className="nb-logo-mark">LT</div>
+            <span className="nb-logo-bottom" style={{ fontSize: 17 }}>
+              TechBlog
+            </span>
+          </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {isAuthenticated && (
+              <Link
+                to="/posts/new"
+                className="nb-btn-primary"
+                style={{ padding: "6px 12px", fontSize: 12 }}
+              >
+                <Plus size={14} strokeWidth={2.5} /> New
+              </Link>
+            )}
+            <button
+              className="nb-hamburger"
+              onClick={() => setDrawerOpen(!drawerOpen)}
+            >
+              {drawerOpen ? (
+                <X size={18} style={{ color: "var(--nb-text)" }} />
+              ) : (
+                <Menu size={18} />
+              )}
+            </button>
           </div>
         </div>
-      </>
+      </div>
 
-      {/* ══════════════════════════════════════
-          MOBILE BOTTOM NAV
-      ══════════════════════════════════════ */}
-      <div className="sm:hidden fixed bottom-0 inset-x-0 z-[80] bg-background/95 backdrop-blur-xl border-t border-default-200/60">
-        <div className="flex items-center justify-around px-2 h-16 pb-safe">
-          <BottomNavItem
-            to="/"
-            icon={<Home size={22} />}
-            label="Home"
-            active={location.pathname === "/"}
-          />
+      {/* Overlay */}
+      <div
+        className={`nb-overlay ${drawerOpen ? "" : "hidden"}`}
+        onClick={() => setDrawerOpen(false)}
+      />
 
-          {isAuthenticated ? (
+      {/* ═══════════════════════════════════════
+          MOBILE DRAWER — hamburger content
+      ═══════════════════════════════════════ */}
+      <div className={`nb-drawer ${drawerOpen ? "" : "hidden"}`}>
+        {/* User card */}
+        {isAuthenticated && (
+          <div className="nb-drawer-user">
+            <div className="nb-drawer-avatar">
+              <AvatarEl
+                src={userProfile?.avatar}
+                name={userProfile?.name}
+                size={40}
+              />
+            </div>
+            <div>
+              <div
+                style={{
+                  fontFamily: "'DM Sans',sans-serif",
+                  fontWeight: 700,
+                  fontSize: 15,
+                  color: "var(--nb-text)",
+                }}
+              >
+                {userProfile?.name || "User"}
+              </div>
+              {isAdmin ? (
+                <div
+                  style={{
+                    fontFamily: "'DM Mono',monospace",
+                    fontSize: 10,
+                    color: "var(--nb-accent)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    marginTop: 3,
+                  }}
+                >
+                  <Zap size={9} /> Admin
+                </div>
+              ) : (
+                <div
+                  style={{
+                    fontFamily: "'DM Mono',monospace",
+                    fontSize: 10,
+                    color: "var(--nb-muted)",
+                    marginTop: 3,
+                  }}
+                >
+                  Member
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Navigation */}
+        <div className="nb-drawer-label">Navigate</div>
+        {mainNavLinks.map((item) => (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`nb-drawer-link ${isActive(item.path) ? "active" : ""}`}
+          >
+            <span
+              style={{
+                color: isActive(item.path)
+                  ? "var(--nb-accent)"
+                  : "var(--nb-muted)",
+              }}
+            >
+              {item.icon}
+            </span>
+            {item.name}
+            {isActive(item.path) && <span className="active-dot" />}
+          </Link>
+        ))}
+
+        {/* Account links */}
+        {isAuthenticated && (
+          <>
+            <div className="nb-drawer-sep" />
+            <div className="nb-drawer-label">My Account</div>
+            {userMenuLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                className={`nb-drawer-link ${link.isAdmin ? "admin-item" : ""}`}
+              >
+                <span
+                  style={{
+                    color: link.isAdmin
+                      ? "var(--nb-violet)"
+                      : "var(--nb-muted)",
+                  }}
+                >
+                  {link.icon}
+                </span>
+                {link.name}
+              </Link>
+            ))}
+          </>
+        )}
+
+        {/* Social links */}
+        <div className="nb-drawer-sep" />
+        <div className="nb-drawer-socials">
+          <a
+            href="https://github.com"
+            target="_blank"
+            rel="noreferrer"
+            className="nb-social-btn"
+          >
+            <Github size={12} /> GitHub
+          </a>
+          <a
+            href="https://twitter.com"
+            target="_blank"
+            rel="noreferrer"
+            className="nb-social-btn"
+          >
+            <Twitter size={12} /> Twitter
+          </a>
+          <a href="mailto:contact@example.com" className="nb-social-btn">
+            <Mail size={12} /> Email
+          </a>
+        </div>
+
+        <div className="nb-drawer-sep" />
+
+        {/* CTA buttons */}
+        {isAuthenticated ? (
+          <>
             <Link
               to="/posts/new"
-              className="flex flex-col items-center justify-center -mt-5"
+              className="nb-drawer-cta-primary"
+              onClick={() => setDrawerOpen(false)}
             >
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-xl shadow-primary/40 hover:scale-110 hover:-translate-y-1 active:scale-95 transition-all duration-200">
-                <Plus size={26} strokeWidth={2.5} className="text-white" />
-              </div>
-              <span className="text-[10px] font-bold text-primary mt-0.5">
-                New
-              </span>
+              <Plus size={18} strokeWidth={2.5} /> Create New Post
             </Link>
-          ) : (
+            <button
+              className="nb-drawer-cta-danger"
+              onClick={() => {
+                setDrawerOpen(false);
+                onLogout();
+              }}
+            >
+              <LogOut size={16} /> Log Out
+            </button>
+          </>
+        ) : (
+          <>
+            <Link
+              to="/register"
+              className="nb-drawer-cta-secondary"
+              onClick={() => setDrawerOpen(false)}
+            >
+              Create Account
+            </Link>
             <Link
               to="/login"
-              className="flex flex-col items-center justify-center -mt-5"
+              className="nb-drawer-cta-primary"
+              onClick={() => setDrawerOpen(false)}
             >
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-xl shadow-primary/40 active:scale-95 transition-all duration-200">
-                <User size={24} className="text-white" />
-              </div>
-              <span className="text-[10px] font-bold text-primary mt-0.5">
-                Login
-              </span>
+              <User size={16} /> Log In
             </Link>
-          )}
+          </>
+        )}
+      </div>
 
-          {isAuthenticated ? (
-            <button
-              onClick={() => setIsDrawerOpen(!isDrawerOpen)}
-              className="flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-xl transition-all"
+      {/* ═══════════════════════════════════════
+          MOBILE BOTTOM NAV
+      ═══════════════════════════════════════ */}
+      <div className="nb-bottom">
+        <Link
+          to="/"
+          className={`nb-bottom-item ${isActive("/") ? "active" : ""}`}
+        >
+          <Home size={22} />
+          <span>Home</span>
+        </Link>
+
+        {isAuthenticated ? (
+          <Link to="/posts/new" className="nb-bottom-fab">
+            <Plus size={24} color="#0a0a0b" strokeWidth={2.5} />
+          </Link>
+        ) : (
+          <Link to="/login" className="nb-bottom-fab">
+            <User size={22} color="#0a0a0b" />
+          </Link>
+        )}
+
+        {isAuthenticated ? (
+          <button
+            className={`nb-bottom-item ${drawerOpen ? "active" : ""}`}
+            onClick={() => setDrawerOpen(!drawerOpen)}
+          >
+            <div
+              className="nb-avatar-btn"
+              style={{
+                width: 26,
+                height: 26,
+                fontSize: 11,
+                pointerEvents: "none",
+                border: drawerOpen ? "1.5px solid var(--nb-accent)" : undefined,
+              }}
             >
-              <div
-                className={`transition-all duration-200 ${isDrawerOpen ? "ring-2 ring-primary ring-offset-2 ring-offset-background rounded-full" : ""}`}
-              >
-                <Avatar
-                  src={userProfile?.avatar}
-                  name={userProfile?.name}
-                  classNames={{
-                    base: "bg-gradient-to-br from-primary/20 to-secondary/20 w-7 h-7",
-                  }}
-                />
-              </div>
-              <span
-                className={`text-[10px] font-bold transition-colors ${isDrawerOpen ? "text-primary" : "text-default-400"}`}
-              >
-                Menu
-              </span>
-            </button>
-          ) : (
-            <BottomNavItem
-              to="/register"
-              icon={<UserCircle size={22} />}
-              label="Sign Up"
-              active={location.pathname === "/register"}
-            />
-          )}
-        </div>
+              <AvatarEl
+                src={userProfile?.avatar}
+                name={userProfile?.name}
+                size={26}
+              />
+            </div>
+            <span>Menu</span>
+          </button>
+        ) : (
+          <Link
+            to="/register"
+            className={`nb-bottom-item ${isActive("/register") ? "active" : ""}`}
+          >
+            <UserCircle size={22} />
+            <span>Sign Up</span>
+          </Link>
+        )}
       </div>
 
-      <div className="sm:hidden h-16" />
+      <div className="nb-mobile-spacer" />
     </>
-  );
-};
-
-/* ── Bottom Nav Item ── */
-const BottomNavItem = ({
-  to,
-  icon,
-  label,
-  active,
-}: {
-  to: string;
-  icon: React.ReactNode;
-  label: string;
-  active: boolean;
-}) => (
-  <Link
-    to={to}
-    className={`flex flex-col items-center justify-center gap-0.5 px-3 py-2 rounded-xl transition-all duration-200 min-w-[56px] relative ${
-      active ? "text-primary" : "text-default-400 hover:text-default-600"
-    }`}
-  >
-    <span
-      className={`transition-transform duration-200 ${active ? "scale-110" : ""}`}
-    >
-      {icon}
-    </span>
-    <span
-      className={`text-[10px] font-bold ${active ? "text-primary" : "text-default-400"}`}
-    >
-      {label}
-    </span>
-    {active && (
-      <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full bg-gradient-to-r from-primary to-secondary" />
-    )}
-  </Link>
-);
-
-/* ── Theme Toggle ── */
-const ThemeToggleBtn = ({
-  isDark,
-  toggleTheme,
-}: {
-  isDark: boolean;
-  toggleTheme: () => void;
-}) => (
-  <button
-    onClick={toggleTheme}
-    aria-label="Toggle theme"
-    className="relative w-9 h-9 rounded-xl flex items-center justify-center border border-default-200 bg-default-100/60 hover:bg-default-200 hover:scale-110 active:scale-95 transition-all duration-300"
-  >
-    <span
-      className={`absolute transition-all duration-500 ${isDark ? "opacity-100 rotate-0 scale-100" : "opacity-0 rotate-90 scale-50"}`}
-    >
-      <Sun size={16} className="text-amber-400" />
-    </span>
-    <span
-      className={`absolute transition-all duration-500 ${!isDark ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"}`}
-    >
-      <Moon size={16} className="text-slate-600 dark:text-slate-300" />
-    </span>
-  </button>
-);
-
-/* ── Logo Mark ── */
-const LogoMark = ({ size = "md" }: { size?: "sm" | "md" }) => {
-  const dim = size === "sm" ? "w-8 h-8" : "w-9 h-9";
-  const textSize = size === "sm" ? "text-sm" : "text-base";
-  return (
-    <div className={`relative ${dim} flex-shrink-0`}>
-      <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary rounded-xl blur-[5px] opacity-40" />
-      <div
-        className={`relative ${dim} rounded-xl flex items-center justify-center bg-gradient-to-br from-primary to-secondary shadow-md`}
-      >
-        <span className={`text-white font-black ${textSize}`}>LT</span>
-      </div>
-    </div>
   );
 };
 
