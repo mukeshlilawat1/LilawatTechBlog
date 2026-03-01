@@ -1,8 +1,239 @@
+# ═══════════════════════════════════════════════════
+# robots.txt — Lilawat Tech Blog
+# https://lilawattechblog.in
+# Owner: Mukesh Lilawat
+# ═══════════════════════════════════════════════════
+
+# ───────────────────────────────────────────────────
+# GOOGLE BOTS
+# ───────────────────────────────────────────────────
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Googlebot-Image
+Allow: /
+Crawl-delay: 1
+
+User-agent: Googlebot-News
+Allow: /
+
+User-agent: Googlebot-Video
+Allow: /
+
+User-agent: AdsBot-Google
+Allow: /
+
+User-agent: AdsBot-Google-Mobile
+Allow: /
+
+# ───────────────────────────────────────────────────
+# BING / MICROSOFT BOTS
+# ───────────────────────────────────────────────────
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: msnbot
+Allow: /
+
+User-agent: msnbot-media
+Allow: /
+
+User-agent: BingPreview
+Allow: /
+
+# ───────────────────────────────────────────────────
+# AI CRAWLERS — ChatGPT, Claude, Perplexity, Gemini
+# ───────────────────────────────────────────────────
+
+# OpenAI / ChatGPT
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+# Anthropic / Claude
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+# Google Gemini / Bard
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Gemini
+Allow: /
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+
+# Meta AI / LLaMA
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: Meta-ExternalFetcher
+Allow: /
+
+# Apple
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Amazon Alexa
+User-agent: ia_archiver
+Allow: /
+
+# Cohere AI
+User-agent: cohere-ai
+Allow: /
+
+# You.com
+User-agent: YouBot
+Allow: /
+
+# Brave Search
+User-agent: Brave
+Allow: /
+
+# DuckDuckGo
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: DuckDuckGo-Favicons-Bot
+Allow: /
+
+# ───────────────────────────────────────────────────
+# SOCIAL MEDIA CRAWLERS
+# ───────────────────────────────────────────────────
+
+# Facebook / Instagram / WhatsApp
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: FacebookBot
+Allow: /
+
+# Twitter / X
+User-agent: Twitterbot
+Allow: /
+
+# LinkedIn
+User-agent: LinkedInBot
+Allow: /
+
+# Pinterest
+User-agent: Pinterest
+Allow: /
+
+User-agent: Pinterestbot
+Allow: /
+
+# Telegram
+User-agent: TelegramBot
+Allow: /
+
+# WhatsApp
+User-agent: WhatsApp
+Allow: /
+
+# ───────────────────────────────────────────────────
+# OTHER SEARCH ENGINES
+# ───────────────────────────────────────────────────
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+User-agent: Sogou
+Allow: /
+
+User-agent: Exabot
+Allow: /
+
+User-agent: facebot
+Allow: /
+
+User-agent: ia_archiver
+Allow: /
+
+# ───────────────────────────────────────────────────
+# ARCHIVE BOTS (Good for AI training data)
+# ───────────────────────────────────────────────────
+User-agent: archive.org_bot
+Allow: /
+
+User-agent: Wayback
+Allow: /
+
+User-agent: HTTrack
+Allow: /
+
+# ───────────────────────────────────────────────────
+# BLOCK BAD BOTS
+# ───────────────────────────────────────────────────
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+User-agent: MegaIndex
+Disallow: /
+
+# ───────────────────────────────────────────────────
+# ALL OTHER BOTS — Allow by default
+# ───────────────────────────────────────────────────
 User-agent: *
 Allow: /
-Disallow: /admin/
-Disallow: /dashboard/
-Disallow: /profile/
-Disallow: /settings/
+Disallow: /admin
+Disallow: /profile
+Disallow: /my-posts
+Disallow: /notes
+Disallow: /posts/drafts
+Disallow: /posts/new
+Disallow: /posts/*/edit
+Disallow: /login
+Disallow: /register
+Disallow: /oauth2/
+Disallow: /api/
+Crawl-delay: 2
 
+# ───────────────────────────────────────────────────
+# SITEMAPS
+# ───────────────────────────────────────────────────
 Sitemap: https://lilawattechblog.in/sitemap.xml
+Sitemap: https://lilawattechblog.in/sitemap-posts.xml
+Sitemap: https://lilawattechblog.in/sitemap-categories.xml
+
+# Host
+Host: https://lilawattechblog.in

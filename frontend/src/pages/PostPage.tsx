@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import DOMPurify from "dompurify";
 import {
   Calendar,
@@ -130,6 +131,229 @@ const PostPageStyles = () => (
   `}</style>
 );
 
+// ─── SEO Helpers ────────────────────────────────────────────────────────────
+
+/** HTML tags hata ke plain text banao description ke liye */
+const stripHtml = (html: string): string => {
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html;
+  return tmp.textContent || tmp.innerText || "";
+};
+
+/** Post content se 160 char ka clean description banao */
+const makeDescription = (content: string, title: string): string => {
+  const plain = stripHtml(content).replace(/\s+/g, " ").trim();
+  const desc = plain.length > 155 ? plain.slice(0, 155) + "..." : plain;
+  return desc || `Read "${title}" on Lilawat Tech Blog by Mukesh Lilawat.`;
+};
+
+/** Post URL banao */
+const makePostUrl = (id: string | number): string =>
+  `https://lilawattechblog.in/posts/${id}`;
+
+/** Tags se keywords string banao */
+const makeKeywords = (post: Post): string => {
+  const tagNames = post.tags?.map((t) => t.name) || [];
+  const category = post.category?.name || "";
+  const base = [
+    post.title,
+    category,
+    ...tagNames,
+    "Mukesh Lilawat",
+    "lilawat tech blog",
+    "lilawattechblog",
+  ];
+  return [...new Set(base)].filter(Boolean).join(", ");
+};
+
+/** ISO date string banao */
+const toISODate = (ds: string): string => {
+  try {
+    return new Date(ds).toISOString();
+  } catch {
+    return new Date().toISOString();
+  }
+};
+
+// ─── Dynamic SEO Component ───────────────────────────────────────────────────
+
+interface PostSEOProps {
+  post: Post;
+}
+
+const PostSEO: React.FC<PostSEOProps> = ({ post }) => {
+  const postUrl = makePostUrl(post.id);
+  const description = makeDescription(post.content, post.title);
+  const keywords = makeKeywords(post);
+  const publishedAt = toISODate(post.createdAt);
+  const modifiedAt = post.updatedAt ? toISODate(post.updatedAt) : publishedAt;
+  const authorName = post.author?.name || "Mukesh Lilawat";
+  const category = post.category?.name || "Technology";
+  const tagNames = post.tags?.map((t) => t.name) || [];
+
+  // og:image — post ki thumbnail ho to use karo, warna default
+  const ogImage = post.thumbnailUrl
+    ? post.thumbnailUrl
+    : "https://lilawattechblog.in/og-image.png";
+
+  const fullTitle = `${post.title} | Lilawat Tech Blog`;
+
+  // Article Schema (JSON-LD)
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: description,
+    url: postUrl,
+    datePublished: publishedAt,
+    dateModified: modifiedAt,
+    inLanguage: "en-IN",
+    author: {
+      "@type": "Person",
+      name: authorName,
+      url: "https://mukeshlilawat.online",
+      sameAs: [
+        "https://linkedin.com/in/mukeshlilawat1",
+        "https://github.com/mukeshlilawat1",
+        "https://twitter.com/mukeshlilawat11",
+      ],
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Lilawat Tech Blog",
+      url: "https://lilawattechblog.in",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://lilawattechblog.in/logo.png",
+        width: 200,
+        height: 60,
+      },
+    },
+    image: {
+      "@type": "ImageObject",
+      url: ogImage,
+      width: 1200,
+      height: 630,
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": postUrl,
+    },
+    articleSection: category,
+    keywords: keywords,
+    ...(tagNames.length > 0 && {
+      about: tagNames.map((t) => ({ "@type": "Thing", name: t })),
+    }),
+    isPartOf: {
+      "@type": "Blog",
+      name: "Lilawat Tech Blog",
+      url: "https://lilawattechblog.in",
+    },
+    ...(post.readingTime && { timeRequired: `PT${post.readingTime}M` }),
+  };
+
+  // BreadcrumbList Schema
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://lilawattechblog.in",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Posts",
+        item: "https://lilawattechblog.in/posts",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: category,
+        item: `https://lilawattechblog.in/categories`,
+      },
+      { "@type": "ListItem", position: 4, name: post.title, item: postUrl },
+    ],
+  };
+
+  return (
+    <Helmet>
+      {/* ── Primary ── */}
+      <title>{fullTitle}</title>
+      <meta name="title" content={fullTitle} />
+      <meta name="description" content={description} />
+      <meta name="keywords" content={keywords} />
+      <meta name="author" content={authorName} />
+      <meta
+        name="robots"
+        content="index, follow, max-snippet:-1, max-image-preview:large"
+      />
+      <meta name="language" content="English" />
+      <link rel="canonical" href={postUrl} />
+
+      {/* ── Article specific ── */}
+      <meta name="article:published_time" content={publishedAt} />
+      <meta name="article:modified_time" content={modifiedAt} />
+      <meta name="article:author" content={authorName} />
+      <meta name="article:section" content={category} />
+      {tagNames.map((tag) => (
+        <meta key={tag} name="article:tag" content={tag} />
+      ))}
+
+      {/* ── Open Graph ── */}
+      <meta property="og:type" content="article" />
+      <meta property="og:url" content={postUrl} />
+      <meta property="og:title" content={fullTitle} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={ogImage} />
+      <meta property="og:image:secure_url" content={ogImage} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={post.title} />
+      <meta property="og:site_name" content="Lilawat Tech Blog" />
+      <meta property="og:locale" content="en_IN" />
+      <meta property="article:published_time" content={publishedAt} />
+      <meta property="article:modified_time" content={modifiedAt} />
+      <meta property="article:author" content="Mukesh Lilawat" />
+      <meta property="article:section" content={category} />
+      {tagNames.map((tag) => (
+        <meta key={`og-tag-${tag}`} property="article:tag" content={tag} />
+      ))}
+
+      {/* ── Twitter Card ── */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content="@mukeshlilawat11" />
+      <meta name="twitter:creator" content="@mukeshlilawat11" />
+      <meta name="twitter:title" content={fullTitle} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={ogImage} />
+      <meta name="twitter:image:alt" content={post.title} />
+      <meta name="twitter:label1" content="Written by" />
+      <meta name="twitter:data1" content={authorName} />
+      <meta name="twitter:label2" content="Reading time" />
+      <meta
+        name="twitter:data2"
+        content={
+          post.readingTime ? `${post.readingTime} min read` : "Quick read"
+        }
+      />
+
+      {/* ── Schema JSON-LD ── */}
+      <script type="application/ld+json">
+        {JSON.stringify(articleSchema)}
+      </script>
+      <script type="application/ld+json">
+        {JSON.stringify(breadcrumbSchema)}
+      </script>
+    </Helmet>
+  );
+};
+
+// ─── Main Component ──────────────────────────────────────────────────────────
+
 const PostPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -226,6 +450,7 @@ const PostPage: React.FC = () => {
       .toUpperCase()
       .slice(0, 2);
 
+  // ── Loading State ──
   if (loading) {
     return (
       <>
@@ -265,6 +490,7 @@ const PostPage: React.FC = () => {
     );
   }
 
+  // ── Error State ──
   if (error || !post) {
     return (
       <>
@@ -284,6 +510,10 @@ const PostPage: React.FC = () => {
   return (
     <>
       <PostPageStyles />
+
+      {/* ── Dynamic SEO ── */}
+      <PostSEO post={post} />
+
       <div className="ppp-root">
         {/* Top bar */}
         <div className="ppp-topbar">
@@ -324,8 +554,7 @@ const PostPage: React.FC = () => {
             <span className="ppp-cat-chip">{post.category?.name}</span>
             {post.tags?.map((tag) => (
               <span key={tag.id} className="ppp-tag-chip">
-                <Tag size={9} />
-                {tag.name}
+                <Tag size={9} /> {tag.name}
               </span>
             ))}
           </div>
@@ -344,13 +573,11 @@ const PostPage: React.FC = () => {
               </div>
               <div className="ppp-author-meta">
                 <span className="ppp-meta-item">
-                  <Calendar size={11} />
-                  {formatDate(post.createdAt)}
+                  <Calendar size={11} /> {formatDate(post.createdAt)}
                 </span>
                 {post.readingTime && (
                   <span className="ppp-meta-item">
-                    <Clock size={11} />
-                    {post.readingTime} min read
+                    <Clock size={11} /> {post.readingTime} min read
                   </span>
                 )}
               </div>
@@ -368,8 +595,7 @@ const PostPage: React.FC = () => {
             <span className="ppp-cat-chip">{post.category?.name}</span>
             {post.tags?.map((tag) => (
               <span key={tag.id} className="ppp-tag-chip">
-                <Tag size={9} />
-                {tag.name}
+                <Tag size={9} /> {tag.name}
               </span>
             ))}
           </div>

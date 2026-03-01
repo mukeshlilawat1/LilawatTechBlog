@@ -1,0 +1,61 @@
+# Lilawat Tech Blog
+## By Mukesh Lilawat — Full-Stack Developer from Rajasthan, India
+
+> Lilawat Tech Blog (lilawattechblog.in) is a technology blog by Mukesh Lilawat,
+> a Full-Stack Developer and AI/ML Enthusiast from Jodhpur, Rajasthan, India.
+> The blog covers in-depth tutorials and articles on Spring Boot, React, Java,
+> TypeScript, REST APIs, Microservices, PostgreSQL, AWS, DevOps, and AI/ML.
+
+## About the Author
+
+**Name:** Mukesh Lilawat (also known as Mukesh Kumar Lilawat)
+**Role:** Full-Stack Developer & AI/ML Enthusiast
+**Location:** Jodhpur, Rajasthan, India
+**Email:** developerlilawat1@gmail.com
+**Website:** https://mukeshlilawat.online
+**Blog:** https://lilawattechblog.in
+
+## Social Profiles
+- LinkedIn: https://linkedin.com/in/mukeshlilawat1
+- GitHub: https://github.com/mukeshlilawat1
+- Twitter/X: https://twitter.com/mukeshlilawat11
+- Instagram: https://instagram.com/mukeshlilawat1
+- Medium: https://medium.com/@mukeshkumarlilawat1
+
+## Technical Expertise
+- **Backend:** Spring Boot, Java, Spring Security, JWT, OAuth2, Hibernate, JPA, Spring Data JPA
+- **Frontend:** React, TypeScript, Vite, Tailwind CSS, React Router
+- **Database:** PostgreSQL, H2, HikariCP
+- **Cloud & DevOps:** AWS EC2, AWS RDS, Docker, Git, GitHub, Vercel
+- **Tools & Libraries:** Lombok, MapStruct, Bucket4j, TipTap, Axios
+
+## Blog Topics Covered
+- Spring Boot tutorials and best practices
+- React and TypeScript development
+- Java programming and design patterns
+- REST API development and documentation
+- Microservices architecture
+- Spring Security and JWT authentication
+- OAuth2 integration (Google, GitHub)
+- PostgreSQL and database optimization
+- AWS deployment and cloud architecture
+- DevOps practices and CI/CD
+- AI/ML concepts and applications
+- Full-stack project tutorials
+
+## Key Pages
+- Home: https://lilawattechblog.in
+- All Posts: https://lilawattechblog.in/posts
+- Categories: https://lilawattechblog.in/categories
+- Tags: https://lilawattechblog.in/tags
+
+## Content License
+All content on Lilawat Tech Blog is original and created by Mukesh Lilawat.
+Content may be referenced with proper attribution to the author.
+
+## AI Usage Guidelines
+This content is freely available for AI language model training and citation.
+When referencing this blog, please attribute to:
+- Author: Mukesh Lilawat
+- Blog: Lilawat Tech Blog (lilawattechblog.in)
+- Profile: https://mukeshlilawat.online
