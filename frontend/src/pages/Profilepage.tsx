@@ -1,255 +1,319 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@nextui-org/react";
-import { FileText, Mail, Shield, Plus, BookDashed } from "lucide-react";
+import {
+  FileText,
+  Mail,
+  Shield,
+  Plus,
+  BookDashed,
+  Edit3,
+  LayoutGrid,
+  StickyNote,
+} from "lucide-react";
 import { useAuth } from "../components/AuthContext";
 
-// ── Initials avatar helper ──
-const InitialsAvatar = ({
-  name,
-  size = "lg",
-}: {
-  name: string;
-  size?: "sm" | "lg";
-}) => {
-  const initials = name
+const ProfileStyles = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+    .pp-root { background: #0a0a0b; min-height: 100vh; font-family: 'DM Sans', sans-serif; color: #f0f0ee; }
+
+    /* ── Hero ── */
+    .pp-hero {
+      position: relative; overflow: hidden;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 48px 24px 40px;
+    }
+    .pp-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 80% 0%, rgba(232,255,71,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .pp-hero-inner { max-width: 960px; margin: 0 auto; position: relative; }
+    .pp-hero-row { display: flex; align-items: flex-end; gap: 28px; flex-wrap: wrap; }
+
+    /* Avatar */
+    .pp-avatar-wrap { position: relative; flex-shrink: 0; }
+    .pp-avatar-glow {
+      position: absolute; inset: -6px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(232,255,71,0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .pp-avatar {
+      width: 88px; height: 88px; border-radius: 50%;
+      background: linear-gradient(135deg, #1e1e22 0%, #2a2a30 100%);
+      border: 2px solid rgba(232,255,71,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: #e8ff47;
+      position: relative; z-index: 1;
+    }
+
+    .pp-hero-info { flex: 1; min-width: 0; }
+    .pp-role-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 5px; margin-bottom: 10px;
+      font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid;
+    }
+    .pp-role-admin { color: #e8ff47; background: rgba(232,255,71,0.08); border-color: rgba(232,255,71,0.3); }
+    .pp-role-user  { color: #22c55e; background: rgba(34,197,94,0.08);  border-color: rgba(34,197,94,0.3);  }
+
+    .pp-name { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px,6vw,54px); letter-spacing: 0.02em; color: #f0f0ee; line-height: 1; margin-bottom: 8px; }
+    .pp-email { display: flex; align-items: center; gap: 7px; font-family: 'DM Mono', monospace; font-size: 12px; color: #4a4a52; }
+
+    .pp-actions { display: flex; gap: 10px; flex-wrap: wrap; padding-bottom: 4px; }
+    .pp-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 8px 18px; border-radius: 9px; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: all 0.18s; font-family: 'DM Sans', sans-serif;
+      text-decoration: none; border: 1px solid;
+    }
+    .pp-btn-primary { color: #0a0a0b; background: #e8ff47; border-color: #e8ff47; }
+    .pp-btn-primary:hover { background: #f5ff6e; transform: translateY(-1px); }
+    .pp-btn-ghost { color: #6b6b72; background: transparent; border-color: rgba(255,255,255,0.1); }
+    .pp-btn-ghost:hover { color: #f0f0ee; border-color: rgba(255,255,255,0.2); }
+
+    /* ── Body ── */
+    .pp-body { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; }
+
+    /* Stats */
+    .pp-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+    @media (max-width: 480px) { .pp-stats { grid-template-columns: 1fr 1fr; } }
+    .pp-stat-card {
+      background: #111113; border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px; padding: 20px;
+      transition: border-color 0.2s;
+    }
+    .pp-stat-card:hover { border-color: rgba(232,255,71,0.15); }
+    .pp-stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+    .pp-stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 36px; line-height: 1; margin-bottom: 4px; }
+    .pp-stat-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #4a4a52; }
+
+    /* Info card */
+    .pp-info-card { background: #111113; border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; overflow: hidden; margin-bottom: 20px; }
+    .pp-info-header { padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .pp-info-header-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: #4a4a52; }
+    .pp-info-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .pp-info-row:last-child { border-bottom: none; }
+    .pp-info-key { font-family: 'DM Mono', monospace; font-size: 11px; color: #4a4a52; }
+    .pp-info-val { font-size: 13px; font-weight: 600; color: #b0b0b8; }
+
+    /* Quick links */
+    .pp-quick { background: rgba(232,255,71,0.04); border: 1px solid rgba(232,255,71,0.12); border-radius: 16px; padding: 20px; }
+    .pp-quick-title { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(232,255,71,0.5); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+    .pp-quick-links { display: flex; flex-wrap: wrap; gap: 10px; }
+    .pp-quick-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700;
+      text-decoration: none; border: 1px solid rgba(232,255,71,0.2);
+      color: #e8ff47; background: rgba(232,255,71,0.06);
+      transition: all 0.18s; font-family: 'DM Sans', sans-serif;
+    }
+    .pp-quick-link:hover { background: rgba(232,255,71,0.12); transform: translateY(-1px); }
+
+    /* Activity links */
+    .pp-activity { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+    @media (max-width: 480px) { .pp-activity { grid-template-columns: 1fr; } }
+    .pp-activity-card {
+      display: flex; align-items: center; gap: 14px;
+      background: #111113; border: 1px solid rgba(255,255,255,0.07); border-radius: 14px;
+      padding: 16px 18px; text-decoration: none; transition: all 0.18s;
+    }
+    .pp-activity-card:hover { border-color: rgba(232,255,71,0.2); transform: translateY(-1px); }
+    .pp-activity-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .pp-activity-title { font-size: 13px; font-weight: 700; color: #f0f0ee; margin-bottom: 2px; }
+    .pp-activity-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: #4a4a52; }
+
+    /* Loading */
+    @keyframes pp-spin { to { transform: rotate(360deg); } }
+    .pp-loading { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #0a0a0b; }
+    .pp-spinner { width: 28px; height: 28px; border: 2px solid rgba(232,255,71,0.15); border-top-color: #e8ff47; border-radius: 50%; animation: pp-spin 0.7s linear infinite; }
+  `}</style>
+);
+
+const ProfilePage: React.FC = () => {
+  const { profile, isAdmin } = useAuth();
+
+  if (!profile) {
+    return (
+      <>
+        <ProfileStyles />
+        <div className="pp-loading">
+          <div className="pp-spinner" />
+        </div>
+      </>
+    );
+  }
+
+  const initials = profile.name
     .split(" ")
-    .map((w) => w[0])
+    .map((w: string) => w[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
 
-  const dim = size === "lg" ? "w-24 h-24 text-3xl" : "w-10 h-10 text-sm";
-
   return (
-    <div className={`relative flex-shrink-0 ${dim}`}>
-      <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary rounded-full blur-[10px] opacity-50" />
-      <div
-        className={`relative ${dim} rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-xl font-black text-white`}
-      >
-        {initials}
-      </div>
-    </div>
-  );
-};
+    <>
+      <ProfileStyles />
+      <div className="pp-root">
+        {/* Hero */}
+        <div className="pp-hero">
+          <div className="pp-hero-inner">
+            <div className="pp-hero-row">
+              <div className="pp-avatar-wrap">
+                <div className="pp-avatar-glow" />
+                <div className="pp-avatar">{initials}</div>
+              </div>
 
-const ProfilePage: React.FC = () => {
-  const { profile, role, isAdmin } = useAuth();
+              <div className="pp-hero-info">
+                <div
+                  className={`pp-role-badge ${isAdmin ? "pp-role-admin" : "pp-role-user"}`}
+                >
+                  <Shield size={10} />
+                  {isAdmin ? "Admin" : "Member"}
+                </div>
+                <div className="pp-name">{profile.name}</div>
+                <div className="pp-email">
+                  <Mail size={13} />
+                  {profile.email}
+                </div>
+              </div>
 
-  if (!profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex items-center gap-3 text-default-400">
-          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <span className="font-semibold">Loading profile...</span>
+              <div className="pp-actions">
+                {isAdmin && (
+                  <Link to="/posts/new" className="pp-btn pp-btn-primary">
+                    <Plus size={14} /> New Post
+                  </Link>
+                )}
+                <Link to="/my-posts" className="pp-btn pp-btn-ghost">
+                  <FileText size={14} /> My Posts
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    );
-  }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-default-100/30">
-      {/* ── Hero ── */}
-      <section className="relative overflow-hidden border-b border-default-200/40 py-14 sm:py-20">
-        {/* Blobs */}
-        <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-primary/20 to-transparent blur-[100px] pointer-events-none" />
-        <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-secondary/15 to-transparent blur-[80px] pointer-events-none" />
-
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 sm:gap-8">
-            {/* Avatar */}
-            <InitialsAvatar name={profile.name} size="lg" />
-
-            {/* Info */}
-            <div className="flex-1 text-center sm:text-left space-y-3">
-              {/* Role badge */}
+        {/* Body */}
+        <div className="pp-body">
+          {/* Stats */}
+          <div className="pp-stats">
+            <div className="pp-stat-card">
               <div
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black tracking-widest uppercase border"
+                className="pp-stat-icon"
+                style={{ background: "rgba(232,255,71,0.1)" }}
+              >
+                <FileText size={16} color="#e8ff47" />
+              </div>
+              <div className="pp-stat-value" style={{ color: "#e8ff47" }}>
+                {String(profile.totalPosts).padStart(2, "0")}
+              </div>
+              <div className="pp-stat-label">Total Posts</div>
+            </div>
+            <div className="pp-stat-card">
+              <div
+                className="pp-stat-icon"
+                style={{ background: "rgba(139,92,246,0.1)" }}
+              >
+                <BookDashed size={16} color="#8b5cf6" />
+              </div>
+              <div className="pp-stat-value" style={{ color: "#8b5cf6" }}>
+                —
+              </div>
+              <div className="pp-stat-label">Drafts</div>
+            </div>
+            <div className="pp-stat-card">
+              <div
+                className="pp-stat-icon"
                 style={{
                   background: isAdmin
-                    ? "rgba(var(--nextui-primary-500)/0.12)"
-                    : "rgba(var(--nextui-success-500)/0.12)",
-                  borderColor: isAdmin
-                    ? "rgba(var(--nextui-primary-500)/0.35)"
-                    : "rgba(var(--nextui-success-500)/0.35)",
-                  color: isAdmin
-                    ? "var(--nextui-primary)"
-                    : "var(--nextui-success)",
+                    ? "rgba(232,255,71,0.1)"
+                    : "rgba(34,197,94,0.1)",
                 }}
               >
-                <Shield size={11} />
-                {isAdmin ? "Admin" : "Member"}
+                <Shield size={16} color={isAdmin ? "#e8ff47" : "#22c55e"} />
               </div>
-
-              <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-foreground">
-                {profile.name}
-              </h1>
-
-              <p className="flex items-center justify-center sm:justify-start gap-2 text-default-500 text-sm font-medium">
-                <Mail size={14} />
-                {profile.email}
-              </p>
-            </div>
-
-            {/* Action buttons */}
-            <div className="flex gap-3 flex-wrap justify-center sm:justify-end">
-              {isAdmin && (
-                <Button
-                  as={Link}
-                  to="/posts/new"
-                  size="md"
-                  startContent={<Plus size={16} />}
-                  className="font-black text-white bg-gradient-to-r from-primary to-secondary shadow-lg shadow-primary/30 hover:-translate-y-0.5 transition-all"
-                >
-                  New Post
-                </Button>
-              )}
-              <Button
-                as={Link}
-                to="/posts/drafts"
-                size="md"
-                variant="flat"
-                startContent={<BookDashed size={16} />}
-                className="font-semibold"
+              <div
+                className="pp-stat-value"
+                style={{
+                  color: isAdmin ? "#e8ff47" : "#22c55e",
+                  fontSize: "24px",
+                  paddingTop: "6px",
+                }}
               >
-                My Drafts
-              </Button>
+                {isAdmin ? "Admin" : "User"}
+              </div>
+              <div className="pp-stat-label">Role</div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ── Stats + Details ── */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-8">
-        {/* Stat cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {[
-            {
-              icon: <FileText size={20} className="text-primary" />,
-              value: profile.totalPosts,
-              label: "Total Posts",
-              bg: "bg-primary/10",
-              border: "border-primary/20",
-              color: "text-primary",
-            },
-            {
-              icon: <BookDashed size={20} className="text-secondary" />,
-              value: "—",
-              label: "Drafts",
-              bg: "bg-secondary/10",
-              border: "border-secondary/20",
-              color: "text-secondary",
-            },
-            {
-              icon: (
-                <Shield
-                  size={20}
-                  className={isAdmin ? "text-primary" : "text-success"}
-                />
-              ),
-              value: isAdmin ? "Admin" : "User",
-              label: "Role",
-              bg: isAdmin ? "bg-primary/10" : "bg-success/10",
-              border: isAdmin ? "border-primary/20" : "border-success/20",
-              color: isAdmin ? "text-primary" : "text-success",
-            },
-          ].map((stat) => (
-            <div
-              key={stat.label}
-              className={`rounded-2xl border ${stat.border} ${stat.bg} p-5 flex flex-col gap-3`}
-            >
+          {/* Activity quick links */}
+          <div className="pp-activity">
+            <Link to="/my-posts" className="pp-activity-card">
               <div
-                className={`w-10 h-10 rounded-xl ${stat.bg} border ${stat.border} flex items-center justify-center`}
+                className="pp-activity-icon"
+                style={{ background: "rgba(232,255,71,0.08)" }}
               >
-                {stat.icon}
+                <Edit3 size={16} color="#e8ff47" />
               </div>
               <div>
-                <div
-                  className={`text-2xl sm:text-3xl font-black ${stat.color}`}
-                >
-                  {stat.value}
-                </div>
-                <div className="text-xs font-bold text-default-500 mt-0.5 uppercase tracking-wider">
-                  {stat.label}
-                </div>
+                <div className="pp-activity-title">My Posts</div>
+                <div className="pp-activity-sub">drafts, published, review</div>
               </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Info card */}
-        <div className="rounded-3xl border border-default-200/60 bg-background/80 backdrop-blur-xl shadow-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-default-200/50 bg-default-50/50">
-            <h2 className="font-black text-foreground">Account Details</h2>
-          </div>
-          <div className="divide-y divide-default-100">
-            {[
-              { label: "Full Name", value: profile.name },
-              { label: "Email Address", value: profile.email },
-              { label: "Role", value: isAdmin ? "Administrator" : "Member" },
-              {
-                label: "Total Published Posts",
-                value: String(profile.totalPosts),
-              },
-            ].map((item) => (
+            </Link>
+            <Link to="/notes" className="pp-activity-card">
               <div
-                key={item.label}
-                className="flex items-center justify-between px-6 py-4"
+                className="pp-activity-icon"
+                style={{ background: "rgba(139,92,246,0.08)" }}
               >
-                <span className="text-sm font-semibold text-default-500">
-                  {item.label}
-                </span>
-                <span className="text-sm font-bold text-foreground">
-                  {item.value}
-                </span>
+                <StickyNote size={16} color="#8b5cf6" />
+              </div>
+              <div>
+                <div className="pp-activity-title">My Notes</div>
+                <div className="pp-activity-sub">personal workspace</div>
+              </div>
+            </Link>
+          </div>
+
+          {/* Account details */}
+          <div className="pp-info-card" style={{ marginBottom: "20px" }}>
+            <div className="pp-info-header">
+              <div className="pp-info-header-label">Account Details</div>
+            </div>
+            {[
+              { key: "Full Name", val: profile.name },
+              { key: "Email Address", val: profile.email },
+              { key: "Role", val: isAdmin ? "Administrator" : "Member" },
+              { key: "Published Posts", val: String(profile.totalPosts) },
+            ].map((item) => (
+              <div key={item.key} className="pp-info-row">
+                <span className="pp-info-key">{item.key}</span>
+                <span className="pp-info-val">{item.val}</span>
               </div>
             ))}
           </div>
-        </div>
 
-        {/* Admin quick links */}
-        {isAdmin && (
-          <div className="rounded-3xl border border-primary/20 bg-primary/5 p-6">
-            <h2 className="font-black text-foreground mb-4 flex items-center gap-2">
-              <Shield size={16} className="text-primary" />
-              Admin Quick Links
-            </h2>
-            <div className="flex flex-wrap gap-3">
-              <Button
-                as={Link}
-                to="/categories"
-                variant="flat"
-                color="primary"
-                size="sm"
-                className="font-bold"
-              >
-                Manage Categories
-              </Button>
-              <Button
-                as={Link}
-                to="/tags"
-                variant="flat"
-                color="secondary"
-                size="sm"
-                className="font-bold"
-              >
-                Manage Tags
-              </Button>
-              <Button
-                as={Link}
-                to="/posts/new"
-                variant="flat"
-                color="success"
-                size="sm"
-                className="font-bold"
-              >
-                Write New Post
-              </Button>
+          {/* Admin quick links */}
+          {isAdmin && (
+            <div className="pp-quick">
+              <div className="pp-quick-title">
+                <Shield size={11} /> Admin Quick Links
+              </div>
+              <div className="pp-quick-links">
+                <Link to="/categories" className="pp-quick-link">
+                  <LayoutGrid size={12} /> Categories
+                </Link>
+                <Link to="/tags" className="pp-quick-link">
+                  <FileText size={12} /> Tags
+                </Link>
+                <Link to="/posts/new" className="pp-quick-link">
+                  <Plus size={12} /> New Post
+                </Link>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
