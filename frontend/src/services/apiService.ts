@@ -102,8 +102,10 @@ export interface ForgotPasswordRequest {
   email: string;
 }
 
+// ── UPDATED: OTP-based reset instead of token-based ──
 export interface ResetPasswordRequest {
-  token: string;
+  email: string;
+  otp: string;
   newPassword: string;
 }
 
@@ -238,6 +240,7 @@ class ApiService {
     await this.api.post('/auth/forgot-password', { email });
   }
 
+  // ── UPDATED: sends { email, otp, newPassword } to backend ──
   public async resetPassword(data: ResetPasswordRequest): Promise<void> {
     await this.api.post('/auth/reset-password', data);
   }
