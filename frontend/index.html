@@ -1,10 +1,433 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" prefix="og: https://ogp.me/ns#">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lilawat Tech Blog</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="content-language" content="en-IN" />
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- PRIMARY META TAGS                           -->
+    <!-- ═══════════════════════════════════════════ -->
+    <title>
+      Lilawat Tech Blog | Mukesh Lilawat — Spring Boot, React, Java & AI/ML
+    </title>
+    <meta
+      name="title"
+      content="Lilawat Tech Blog | Mukesh Lilawat — Spring Boot, React, Java & AI/ML"
+    />
+    <meta
+      name="description"
+      content="Lilawat Tech Blog by Mukesh Lilawat — Full-Stack Developer & AI/ML Enthusiast from Rajasthan, India. In-depth articles on Spring Boot, React, Java, Web Development, REST APIs, Microservices, PostgreSQL, and AI/ML."
+    />
+    <meta
+      name="keywords"
+      content="Mukesh Lilawat, mukesh lilawat blog, lilawat tech blog, lilawattechblog, mukesh lilawat developer, mukesh kumar lilawat, spring boot tutorials, react tutorials, java development, full stack developer india, AI ML blog, web development india, backend developer rajasthan, spring boot react full stack, REST API development, microservices java, postgresql tutorials, hibernate jpa, spring security, JWT authentication, devops AWS, EC2 deployment, software engineer jodhpur, computer science india"
+    />
+    <meta name="author" content="Mukesh Lilawat" />
+    <meta
+      name="robots"
+      content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+    />
+    <meta
+      name="googlebot"
+      content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"
+    />
+    <meta name="bingbot" content="index, follow" />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="3 days" />
+    <meta name="rating" content="general" />
+    <meta name="copyright" content="Mukesh Lilawat" />
+    <meta name="owner" content="Mukesh Lilawat" />
+    <meta
+      name="category"
+      content="Technology, Programming, Web Development, AI/ML"
+    />
+    <meta name="classification" content="Technology Blog" />
+    <meta name="coverage" content="Worldwide" />
+    <meta name="distribution" content="Global" />
+    <meta name="target" content="all" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="theme-color" content="#0a0a0b" />
+    <meta name="msapplication-TileColor" content="#0a0a0b" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Lilawat Tech Blog" />
+    <meta name="application-name" content="Lilawat Tech Blog" />
+    <meta name="geo.region" content="IN-RJ" />
+    <meta name="geo.placename" content="Rajasthan, India" />
+    <meta name="geo.position" content="26.9124;75.7873" />
+    <meta name="ICBM" content="26.9124, 75.7873" />
+    <link rel="canonical" href="https://lilawattechblog.in" />
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- OPEN GRAPH / FACEBOOK / WHATSAPP            -->
+    <!-- ═══════════════════════════════════════════ -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://lilawattechblog.in/" />
+    <meta
+      property="og:title"
+      content="Lilawat Tech Blog | Mukesh Lilawat — Spring Boot, React, Java & AI/ML"
+    />
+    <meta
+      property="og:description"
+      content="In-depth articles on Spring Boot, React, Java, REST APIs, Microservices and AI/ML by Mukesh Lilawat — Full-Stack Developer from Rajasthan, India."
+    />
+    <meta
+      property="og:image"
+      content="https://lilawattechblog.in/og-image.png"
+    />
+    <meta
+      property="og:image:secure_url"
+      content="https://lilawattechblog.in/og-image.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta
+      property="og:image:alt"
+      content="Lilawat Tech Blog by Mukesh Lilawat"
+    />
+    <meta property="og:site_name" content="Lilawat Tech Blog" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta
+      property="article:author"
+      content="https://www.facebook.com/mukeshlilawat"
+    />
+    <meta property="profile:first_name" content="Mukesh" />
+    <meta property="profile:last_name" content="Lilawat" />
+    <meta property="profile:username" content="mukeshlilawat1" />
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- TWITTER CARD                                -->
+    <!-- ═══════════════════════════════════════════ -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@mukeshlilawat11" />
+    <meta name="twitter:creator" content="@mukeshlilawat11" />
+    <meta name="twitter:title" content="Lilawat Tech Blog | Mukesh Lilawat" />
+    <meta
+      name="twitter:description"
+      content="In-depth articles on Spring Boot, React, Java, and AI/ML by Mukesh Lilawat — Full-Stack Developer from Rajasthan, India."
+    />
+    <meta
+      name="twitter:image"
+      content="https://lilawattechblog.in/og-image.png"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="Lilawat Tech Blog by Mukesh Lilawat"
+    />
+    <meta name="twitter:domain" content="lilawattechblog.in" />
+    <meta name="twitter:url" content="https://lilawattechblog.in" />
+    <meta name="twitter:label1" content="Written by" />
+    <meta name="twitter:data1" content="Mukesh Lilawat" />
+    <meta name="twitter:label2" content="Topics" />
+    <meta name="twitter:data2" content="Spring Boot, React, Java, AI/ML" />
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- LINKEDIN                                    -->
+    <!-- ═══════════════════════════════════════════ -->
+    <meta property="linkedin:owner" content="mukeshlilawat1" />
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- FAVICON                                     -->
+    <!-- ═══════════════════════════════════════════ -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#0a0a0b" />
+    <meta name="msapplication-TileImage" content="/mstile-150x150.png" />
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- PERFORMANCE — PRECONNECT / PREFETCH         -->
+    <!-- ═══════════════════════════════════════════ -->
+    <link rel="preconnect" href="https://api.lilawattechblog.in" crossorigin />
+    <link rel="dns-prefetch" href="https://api.lilawattechblog.in" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" href="/src/main.tsx" as="script" />
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SITEMAP + ALTERNATE                         -->
+    <!-- ═══════════════════════════════════════════ -->
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="Lilawat Tech Blog RSS Feed"
+      href="https://lilawattechblog.in/rss.xml"
+    />
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SCHEMA.ORG — BLOG                           -->
+    <!-- ═══════════════════════════════════════════ -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "name": "Lilawat Tech Blog",
+        "alternateName": [
+          "lilawattechblog",
+          "Lilawat Tech Blog by Mukesh Lilawat"
+        ],
+        "url": "https://lilawattechblog.in",
+        "description": "In-depth articles on Spring Boot, React, Java, Web Development, REST APIs, Microservices and AI/ML by Mukesh Lilawat",
+        "inLanguage": "en-IN",
+        "isFamilyFriendly": true,
+        "image": {
+          "@type": "ImageObject",
+          "url": "https://lilawattechblog.in/og-image.png",
+          "width": 1200,
+          "height": 630
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Mukesh Lilawat",
+          "alternateName": ["Mukesh Kumar Lilawat", "mukeshlilawat1"],
+          "url": "https://mukeshlilawat.online",
+          "jobTitle": "Full-Stack Developer",
+          "sameAs": [
+            "https://linkedin.com/in/mukeshlilawat1",
+            "https://github.com/mukeshlilawat1",
+            "https://twitter.com/mukeshlilawat11",
+            "https://instagram.com/mukeshlilawat1",
+            "https://medium.com/@mukeshkumarlilawat1",
+            "https://mukeshlilawat.online"
+          ],
+          "knowsAbout": [
+            "Spring Boot",
+            "React",
+            "Java",
+            "AI/ML",
+            "Web Development",
+            "REST API",
+            "Microservices",
+            "PostgreSQL",
+            "AWS",
+            "DevOps"
+          ]
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Lilawat Tech Blog",
+          "url": "https://lilawattechblog.in",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://lilawattechblog.in/logo.png",
+            "width": 200,
+            "height": 60
+          }
+        },
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": "https://lilawattechblog.in"
+        }
+      }
+    </script>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SCHEMA.ORG — PERSON (Mukesh Lilawat)        -->
+    <!-- ═══════════════════════════════════════════ -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Mukesh Lilawat",
+        "alternateName": [
+          "Mukesh Kumar Lilawat",
+          "mukeshlilawat1",
+          "mukesh lilawat developer",
+          "Mukesh Lilawat Blog"
+        ],
+        "url": "https://mukeshlilawat.online",
+        "image": {
+          "@type": "ImageObject",
+          "url": "https://lilawattechblog.in/mukesh-lilawat.jpg",
+          "caption": "Mukesh Lilawat — Full-Stack Developer"
+        },
+        "jobTitle": "Full-Stack Developer",
+        "description": "Full-Stack Developer & AI/ML Enthusiast from Rajasthan, India. Expert in Spring Boot, React, Java, Microservices, REST APIs and Cloud Deployment.",
+        "worksFor": {
+          "@type": "Organization",
+          "name": "Freelance"
+        },
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Jodhpur",
+          "addressRegion": "Rajasthan",
+          "addressCountry": "IN"
+        },
+        "nationality": "Indian",
+        "knowsAbout": [
+          "Spring Boot",
+          "React",
+          "Java",
+          "TypeScript",
+          "JavaScript",
+          "AI/ML",
+          "Web Development",
+          "Full-Stack Development",
+          "REST API",
+          "Microservices",
+          "PostgreSQL",
+          "Hibernate",
+          "Spring Security",
+          "JWT",
+          "OAuth2",
+          "AWS EC2",
+          "Docker",
+          "Git",
+          "GitHub",
+          "Tailwind CSS",
+          "Node.js",
+          "DevOps"
+        ],
+        "sameAs": [
+          "https://linkedin.com/in/mukeshlilawat1",
+          "https://github.com/mukeshlilawat1",
+          "https://twitter.com/mukeshlilawat11",
+          "https://instagram.com/mukeshlilawat1",
+          "https://medium.com/@mukeshkumarlilawat1",
+          "https://mukeshlilawat.online"
+        ]
+      }
+    </script>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SCHEMA.ORG — WEBSITE WITH SEARCH ACTION     -->
+    <!-- ═══════════════════════════════════════════ -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Lilawat Tech Blog",
+        "alternateName": ["lilawattechblog", "Mukesh Lilawat Blog"],
+        "url": "https://lilawattechblog.in",
+        "description": "Tech blog by Mukesh Lilawat covering Spring Boot, React, Java and AI/ML",
+        "inLanguage": "en-IN",
+        "copyrightYear": 2024,
+        "copyrightHolder": {
+          "@type": "Person",
+          "name": "Mukesh Lilawat"
+        },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://lilawattechblog.in/posts?search={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SCHEMA.ORG — ORGANIZATION                   -->
+    <!-- ═══════════════════════════════════════════ -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Lilawat Tech Blog",
+        "url": "https://lilawattechblog.in",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://lilawattechblog.in/logo.png"
+        },
+        "founder": {
+          "@type": "Person",
+          "name": "Mukesh Lilawat",
+          "url": "https://mukeshlilawat.online"
+        },
+        "sameAs": [
+          "https://linkedin.com/in/mukeshlilawat1",
+          "https://github.com/mukeshlilawat1",
+          "https://twitter.com/mukeshlilawat11"
+        ],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "customer support",
+          "email": "developerlilawat1@gmail.com",
+          "availableLanguage": ["English", "Hindi"]
+        }
+      }
+    </script>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SCHEMA.ORG — BREADCRUMB                     -->
+    <!-- ═══════════════════════════════════════════ -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://lilawattechblog.in"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Posts",
+            "item": "https://lilawattechblog.in/posts"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Categories",
+            "item": "https://lilawattechblog.in/categories"
+          }
+        ]
+      }
+    </script>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- SCHEMA.ORG — SITELINKS SEARCHBOX            -->
+    <!-- ═══════════════════════════════════════════ -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "@id": "https://lilawattechblog.in",
+        "url": "https://lilawattechblog.in",
+        "name": "Lilawat Tech Blog | Mukesh Lilawat",
+        "description": "Tech blog by Mukesh Lilawat — Spring Boot, React, Java, AI/ML",
+        "isPartOf": {
+          "@type": "WebSite",
+          "url": "https://lilawattechblog.in"
+        },
+        "about": {
+          "@type": "Thing",
+          "name": "Web Development and Programming"
+        },
+        "primaryImageOfPage": {
+          "@type": "ImageObject",
+          "url": "https://lilawattechblog.in/og-image.png"
+        },
+        "datePublished": "2024-01-01",
+        "dateModified": "2025-03-01",
+        "author": {
+          "@type": "Person",
+          "name": "Mukesh Lilawat"
+        },
+        "inLanguage": "en-IN",
+        "potentialAction": [
+          {
+            "@type": "ReadAction",
+            "target": ["https://lilawattechblog.in"]
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

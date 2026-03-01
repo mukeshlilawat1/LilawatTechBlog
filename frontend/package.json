@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "clean": "rimraf .next out dist coverage .turbo node_modules package-lock.json && npm cache clean --force"
+    "clean": "rimraf .next out dist coverage .turbo node_modules package-lock.json && npm cache clean --force",
+    "sitemap": "node scripts/generate-sitemap.js"
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.4.2",
@@ -23,6 +24,7 @@
     "lucide-react": "^0.463.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-helmet-async": "^2.0.5",
     "react-router-dom": "^7.0.2"
   },
   "devDependencies": {
