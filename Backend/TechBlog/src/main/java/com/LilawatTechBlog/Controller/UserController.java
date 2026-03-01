@@ -26,6 +26,7 @@ public class UserController {
                 .orElseThrow();
 
         UserProfileResponse profile = UserProfileResponse.builder()
+                .id(user.getId().toString())
                 .name(user.getName())
                 .email(user.getEmail())
                 .totalPosts(user.getPosts() != null ? user.getPosts().size() : 0) // ✅ null check

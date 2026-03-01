@@ -2,49 +2,43 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { apiService } from "../services/apiService";
 import { useAuth } from "../components/AuthContext";
+import { Eye, EyeOff, ArrowLeft, Check } from "lucide-react";
 
 type Step = "form" | "otp";
 
 const RegisterPage = () => {
   const [step, setStep] = useState<Step>("form");
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [otp, setOtp] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  const passwordChecks = {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    number: /[0-9]/.test(password),
+  };
+  const allChecks = Object.values(passwordChecks).every(Boolean);
+
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
-      return;
-    }
-    if (!/[A-Z]/.test(password)) {
-      setError("Password must contain at least one uppercase letter.");
-      return;
-    }
-    if (!/[0-9]/.test(password)) {
-      setError("Password must contain at least one number.");
-      return;
-    }
-
+    if (password !== confirmPassword)
+      return setError("Passwords do not match.");
+    if (!allChecks) return setError("Password requirements not met.");
     setIsLoading(true);
     try {
       await apiService.sendOtp(email);
       setStep("otp");
     } catch (err: any) {
-      setError(err.message || "Failed to send OTP. Please try again.");
+      setError(err.message || "Failed to send OTP.");
     } finally {
       setIsLoading(false);
     }
@@ -53,22 +47,16 @@ const RegisterPage = () => {
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    // ✅ Spaces aur non-numeric hata do
-    const cleanOtp = otp.replace(/\D/g, "").replace(/\s/g, "").trim();
-
-    if (cleanOtp.length !== 6) {
-      setError("Please enter a valid 6-digit OTP.");
-      return;
-    }
-
+    const cleanOtp = otp.replace(/\D/g, "").trim();
+    if (cleanOtp.length !== 6)
+      return setError("Please enter a valid 6-digit OTP.");
     setIsLoading(true);
     try {
       await apiService.verifyOtpAndRegister({
         name,
         email,
         password,
-        otp: cleanOtp, // ✅ clean OTP bhejo
+        otp: cleanOtp,
       });
       await login(email, password);
       navigate("/");
@@ -85,56 +73,49 @@ const RegisterPage = () => {
     setIsLoading(true);
     try {
       await apiService.sendOtp(email);
-    } catch (err: any) {
+    } catch {
       setError("Failed to resend OTP.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const inputClass = `
-    w-full rounded-xl border border-default-300 bg-background/60
-    px-4 py-2.5 text-sm text-foreground
-    focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40
-    disabled:bg-default-100 transition
-  `;
-
-  const labelClass = "text-sm font-semibold text-default-700";
+  const inputClass =
+    "w-full rounded-lg border border-default-200 bg-default-50 px-3 py-2 text-sm text-foreground placeholder:text-default-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 disabled:opacity-50 transition";
 
   return (
-    <main className="min-h-screen relative overflow-hidden bg-gradient-to-b from-background via-background to-default-100/40 flex items-center justify-center px-4 py-12">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-32 -right-32 w-[420px] h-[420px] bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-[420px] h-[420px] bg-gradient-to-tr from-secondary/20 to-transparent rounded-full blur-3xl" />
-      </div>
+    <div
+      className="flex items-center justify-center px-4 py-10"
+      style={{ minHeight: "calc(100vh - 64px)" }}
+    >
+      <div className="w-full max-w-[360px]">
+        {/* Logo */}
+        <div className="flex items-center justify-center gap-2 mb-5">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
+            <span className="text-white font-black text-xs">LT</span>
+          </div>
+          <span className="text-sm font-black text-foreground tracking-tight">
+            LilawatTechBlog
+          </span>
+        </div>
 
-      <div className="relative w-full max-w-md">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-secondary/20 rounded-3xl blur opacity-60" />
-
-        <div className="relative bg-background/80 backdrop-blur-xl border border-default-200/60 rounded-3xl shadow-2xl p-8 sm:p-10">
-          {/* ===== STEP 1 — Registration Form ===== */}
+        <div className="w-full bg-content1 border border-default-200 rounded-2xl shadow-sm p-6">
+          {/* ── STEP 1 ── */}
           {step === "form" && (
             <>
-              <div className="text-center mb-8 space-y-2">
-                <h1 className="text-3xl font-black tracking-tight text-foreground">
-                  Create Account
-                </h1>
-                <p className="text-sm text-default-500">
-                  Join{" "}
-                  <span className="font-semibold text-foreground">
-                    LilawatTechBlog
-                  </span>{" "}
-                  today
-                </p>
-              </div>
+              <h1 className="text-lg font-black text-foreground">
+                Create Account
+              </h1>
+              <p className="text-xs text-default-500 mt-0.5 mb-5">
+                Join LilawatTechBlog today.
+              </p>
 
-              <form className="space-y-5" onSubmit={handleSendOtp}>
-                <div className="space-y-1.5">
-                  <label htmlFor="name" className={labelClass}>
+              <form className="space-y-3.5" onSubmit={handleSendOtp}>
+                <div>
+                  <label className="block text-xs font-semibold text-default-600 mb-1">
                     Full Name
                   </label>
                   <input
-                    id="name"
                     type="text"
                     autoComplete="name"
                     required
@@ -146,12 +127,11 @@ const RegisterPage = () => {
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label htmlFor="email" className={labelClass}>
-                    Email address
+                <div>
+                  <label className="block text-xs font-semibold text-default-600 mb-1">
+                    Email
                   </label>
                   <input
-                    id="email"
                     type="email"
                     autoComplete="email"
                     required
@@ -163,145 +143,169 @@ const RegisterPage = () => {
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label htmlFor="password" className={labelClass}>
+                <div>
+                  <label className="block text-xs font-semibold text-default-600 mb-1">
                     Password
                   </label>
-                  <input
-                    id="password"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    disabled={isLoading}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className={inputClass}
-                  />
-                  <p className="text-xs text-default-400">
-                    Min 8 characters, 1 uppercase, 1 number
-                  </p>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      required
+                      disabled={isLoading}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className={`${inputClass} pr-9`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-default-400 hover:text-default-600 transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                  </div>
+                  {password && (
+                    <div className="flex gap-3 mt-1.5">
+                      {[
+                        { ok: passwordChecks.length, label: "8+ chars" },
+                        { ok: passwordChecks.uppercase, label: "Uppercase" },
+                        { ok: passwordChecks.number, label: "Number" },
+                      ].map((c) => (
+                        <span
+                          key={c.label}
+                          className={`flex items-center gap-1 text-xs transition-colors ${c.ok ? "text-success" : "text-default-400"}`}
+                        >
+                          <Check size={10} strokeWidth={c.ok ? 3 : 1.5} />
+                          {c.label}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                <div className="space-y-1.5">
-                  <label htmlFor="confirmPassword" className={labelClass}>
+                <div>
+                  <label className="block text-xs font-semibold text-default-600 mb-1">
                     Confirm Password
                   </label>
-                  <input
-                    id="confirmPassword"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    disabled={isLoading}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className={`${inputClass} ${
-                      confirmPassword && password !== confirmPassword
-                        ? "border-danger-300 focus:ring-danger/40"
-                        : ""
-                    }`}
-                  />
+                  <div className="relative">
+                    <input
+                      type={showConfirm ? "text" : "password"}
+                      autoComplete="new-password"
+                      required
+                      disabled={isLoading}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className={`${inputClass} pr-9 ${confirmPassword && password !== confirmPassword ? "border-danger-300" : ""}`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirm(!showConfirm)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-default-400 hover:text-default-600 transition-colors"
+                    >
+                      {showConfirm ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                  </div>
                   {confirmPassword && password !== confirmPassword && (
-                    <p className="text-xs text-danger-500 mt-1">
+                    <p className="text-xs text-danger mt-1">
                       Passwords do not match
                     </p>
                   )}
                 </div>
 
                 {error && (
-                  <div className="rounded-xl bg-danger-50/80 border border-danger-200 px-4 py-3 text-sm text-danger-700">
+                  <p className="text-xs text-danger bg-danger-50 border border-danger-100 rounded-lg px-3 py-2">
                     {error}
-                  </div>
+                  </p>
                 )}
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full rounded-xl bg-gradient-to-r from-primary to-secondary py-3 text-sm font-bold text-white shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-2"
+                  className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50 transition mt-1"
                 >
-                  {isLoading ? "Sending OTP..." : "Send OTP"}
+                  {isLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                      Sending OTP...
+                    </span>
+                  ) : (
+                    "Send OTP & Continue"
+                  )}
                 </button>
               </form>
+
+              <p className="mt-4 text-center text-xs text-default-500">
+                Already have an account?{" "}
+                <Link
+                  to="/login"
+                  className="font-semibold text-primary hover:underline"
+                >
+                  Sign in
+                </Link>
+              </p>
             </>
           )}
 
-          {/* ===== STEP 2 — OTP Verification ===== */}
+          {/* ── STEP 2: OTP ── */}
           {step === "otp" && (
             <>
-              <div className="text-center mb-8 space-y-2">
-                <div className="flex justify-center mb-4">
-                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                    <svg
-                      className="w-8 h-8 text-primary"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-                <h1 className="text-3xl font-black tracking-tight text-foreground">
-                  Verify Email
-                </h1>
-                <p className="text-sm text-default-500">
-                  OTP sent to{" "}
-                  <span className="font-semibold text-foreground">{email}</span>
-                </p>
-                <p className="text-xs text-default-400">
-                  Check your inbox (and spam folder)
-                </p>
-              </div>
+              <h1 className="text-lg font-black text-foreground">
+                Verify Email
+              </h1>
+              <p className="text-xs text-default-500 mt-0.5">
+                OTP sent to{" "}
+                <span className="font-semibold text-foreground">{email}</span>
+              </p>
+              <p className="text-xs text-default-400 mb-5">
+                Check spam if not received.
+              </p>
 
-              <form className="space-y-5" onSubmit={handleVerifyOtp}>
-                <div className="space-y-1.5">
-                  <label htmlFor="otp" className={labelClass}>
-                    Enter OTP
+              <form className="space-y-3.5" onSubmit={handleVerifyOtp}>
+                <div>
+                  <label className="block text-xs font-semibold text-default-600 mb-1">
+                    6-digit OTP
                   </label>
                   <input
-                    id="otp"
                     type="text"
                     inputMode="numeric"
                     maxLength={6}
                     required
                     disabled={isLoading}
                     value={otp}
-                    // ✅ Sirf numbers allow karo — spaces nahi
-                    onChange={(e) =>
-                      setOtp(
-                        e.target.value.replace(/\D/g, "").replace(/\s/g, ""),
-                      )
-                    }
-                    placeholder="062745"
-                    // ✅ tracking hata diya — spaces ka illusion nahi hoga
-                    className={`${inputClass} text-center text-2xl font-bold`}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                    placeholder="000000"
+                    className="w-full rounded-lg border border-default-200 bg-default-50 px-3 py-2.5 text-center text-xl font-bold tracking-[0.4em] text-foreground placeholder:text-default-300 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 disabled:opacity-50 transition"
                   />
-                  <p className="text-xs text-default-400 text-center">
-                    OTP expires in 5 minutes
+                  <p className="text-xs text-default-400 text-center mt-1">
+                    Expires in 5 minutes
                   </p>
                 </div>
 
                 {error && (
-                  <div className="rounded-xl bg-danger-50/80 border border-danger-200 px-4 py-3 text-sm text-danger-700">
+                  <p className="text-xs text-danger bg-danger-50 border border-danger-100 rounded-lg px-3 py-2">
                     {error}
-                  </div>
+                  </p>
                 )}
 
                 <button
                   type="submit"
-                  disabled={isLoading}
-                  className="w-full rounded-xl bg-gradient-to-r from-primary to-secondary py-3 text-sm font-bold text-white shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-2"
+                  disabled={isLoading || otp.length < 6}
+                  className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-50 transition"
                 >
-                  {isLoading ? "Verifying..." : "Verify & Create Account"}
+                  {isLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                      Verifying...
+                    </span>
+                  ) : (
+                    "Verify & Create Account"
+                  )}
                 </button>
 
-                <div className="flex items-center justify-between pt-2">
+                <div className="flex items-center justify-between pt-0.5">
                   <button
                     type="button"
                     onClick={() => {
@@ -309,15 +313,15 @@ const RegisterPage = () => {
                       setError("");
                       setOtp("");
                     }}
-                    className="text-sm text-default-500 hover:text-foreground transition"
+                    className="flex items-center gap-1 text-xs text-default-500 hover:text-foreground transition-colors"
                   >
-                    ← Change email
+                    <ArrowLeft size={12} /> Change email
                   </button>
                   <button
                     type="button"
                     onClick={handleResendOtp}
                     disabled={isLoading}
-                    className="text-sm text-primary hover:underline underline-offset-2 transition disabled:opacity-50"
+                    className="text-xs font-semibold text-primary hover:underline disabled:opacity-50"
                   >
                     Resend OTP
                   </button>
@@ -325,19 +329,9 @@ const RegisterPage = () => {
               </form>
             </>
           )}
-
-          <p className="mt-6 text-center text-sm text-default-500">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="font-semibold text-primary hover:underline underline-offset-2 transition"
-            >
-              Sign in
-            </Link>
-          </p>
         </div>
       </div>
-    </main>
+    </div>
   );
 };
 

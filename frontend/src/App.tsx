@@ -15,6 +15,8 @@ import AdminDashboard from "./pages/AdminDashboard"; // ✅ NEW
 import NotesPage from "./pages/NotesPage"; // ✅ NEW
 import { AuthProvider, useAuth } from "./components/AuthContext";
 import Footer from "./components/Footer";
+import OAuth2Callback from './pages/OAuth2Callback';
+import ForgotPasswordPage from "./pages/Forgotpasswordpage";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
@@ -148,6 +150,8 @@ function AppContent() {
               </AdminRoute>
             }
           />
+          <Route path="/oauth2/callback" element={<OAuth2Callback />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         </Routes>
         <Footer />
       </main>

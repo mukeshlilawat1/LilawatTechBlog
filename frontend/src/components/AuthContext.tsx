@@ -12,7 +12,7 @@ export type UserRole = "USER" | "ADMIN";
 interface AuthContextType {
   isAuthenticated: boolean;
   role: UserRole | null;
-  profile: UserProfile | null; // ✅ name, email, totalPosts
+  profile: UserProfile | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   token: string | null;
@@ -23,7 +23,7 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -33,9 +33,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [role, setRole] = useState<UserRole | null>(
     localStorage.getItem("role") as UserRole | null,
   );
-  const [profile, setProfile] = useState<UserProfile | null>(null); // ✅
+  const [profile, setProfile] = useState<UserProfile | null>(null);
 
-  // ✅ Profile fetch helper
   const fetchProfile = useCallback(async () => {
     try {
       const data = await apiService.getUserProfile();
@@ -45,7 +44,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  // Initialize from localStorage on mount
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedRole = localStorage.getItem("role") as UserRole | null;
@@ -53,14 +51,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsAuthenticated(true);
       setToken(storedToken);
       setRole(storedRole);
-      fetchProfile(); // ✅ page refresh pe bhi profile load ho
+      fetchProfile();
     }
   }, []);
 
-  // Axios header sync
   useEffect(() => {
     if (token) {
-      const axiosInstance = apiService["api"];
+      const axiosInstance = (apiService as any)["api"];
       axiosInstance.defaults.headers.common["Authorization"] =
         `Bearer ${token}`;
     }
@@ -71,10 +68,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await apiService.login({ email, password });
       localStorage.setItem("token", response.token);
       localStorage.setItem("role", response.role);
+      localStorage.setItem("email", email); // ✅ ADDED
       setToken(response.token);
       setRole(response.role as UserRole);
       setIsAuthenticated(true);
-      await fetchProfile(); // ✅ login ke baad turant profile lo
+      await fetchProfile();
     },
     [fetchProfile],
   );
@@ -82,10 +80,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = useCallback(() => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
+    localStorage.removeItem("email"); // ✅ ADDED
+    localStorage.removeItem("userId");
     setIsAuthenticated(false);
     setRole(null);
     setToken(null);
-    setProfile(null); // ✅ clear
+    setProfile(null);
     apiService.logout();
   }, []);
 
@@ -107,5 +107,3 @@ export const useAuth = (): AuthContextType => {
   if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
-
-export default AuthContext;

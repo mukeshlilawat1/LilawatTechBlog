@@ -5,6 +5,7 @@ import com.LilawatTechBlog.domain.UpdatePostRequest;
 import com.LilawatTechBlog.domain.entity.Post;
 import com.LilawatTechBlog.domain.entity.User;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,7 +18,7 @@ public interface PostService {
 
     Post updatePost(UUID id, UpdatePostRequest updatePostRequest);
 
-    void deletePost(UUID id);
+    void deletePost(UUID id, UUID currentUserId) throws AccessDeniedException;
 
     Post submitForReview(UUID id, User user);
     List<Post> getPendingPosts();

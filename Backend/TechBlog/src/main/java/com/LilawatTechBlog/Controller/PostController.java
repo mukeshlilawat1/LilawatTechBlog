@@ -12,11 +12,13 @@ import com.LilawatTechBlog.domain.entity.User;
 import com.LilawatTechBlog.mappers.PostMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
@@ -85,9 +87,10 @@ public class PostController {
 
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable UUID id) {
-        postService.deletePost(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> deletePost(@PathVariable UUID id, @RequestAttribute UUID userId) throws AccessDeniedException {
+       postService.deletePost(id, userId);
+       return ResponseEntity.noContent().build();
+
     }
 
     @GetMapping("/my-posts")

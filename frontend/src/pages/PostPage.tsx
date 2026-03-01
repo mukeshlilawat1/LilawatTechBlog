@@ -12,22 +12,17 @@ import {
   Share,
 } from "lucide-react";
 import { apiService, Post } from "../services/apiService";
+import { useAuth } from "../components/AuthContext";
 
-interface PostPageProps {
-  isAuthenticated?: boolean;
-  currentUserId?: string;
-}
-
-const PostPage: React.FC<PostPageProps> = ({
-  isAuthenticated,
-  currentUserId,
-}) => {
+const PostPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [post, setPost] = useState<Post | undefined>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const { isAuthenticated, isAdmin, profile } = useAuth();
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -46,6 +41,11 @@ const PostPage: React.FC<PostPageProps> = ({
 
     fetchPost();
   }, [id]);
+
+  // profile.id se match karo — simple aur reliable
+  const isOwner = !!profile && post?.author?.id === profile.id;
+  const canEdit = isAuthenticated && (isAdmin || isOwner);
+  const canDelete = isAuthenticated && (isAdmin || isOwner);
 
   const handleDelete = async () => {
     if (!post || !window.confirm("Are you sure you want to delete this post?"))
@@ -87,7 +87,6 @@ const PostPage: React.FC<PostPageProps> = ({
     }),
   });
 
-  /* ---------- Loading ---------- */
   if (loading) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-20 animate-pulse">
@@ -99,7 +98,6 @@ const PostPage: React.FC<PostPageProps> = ({
     );
   }
 
-  /* ---------- Error ---------- */
   if (error || !post) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-20">
@@ -119,7 +117,7 @@ const PostPage: React.FC<PostPageProps> = ({
   return (
     <main className="min-h-screen bg-gradient-to-b from-background via-background to-default-100/40">
       <div className="max-w-3xl mx-auto px-4 py-16 sm:py-20">
-        {/* ===== Top Bar ===== */}
+        {/* Top Bar */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-10">
           <Button
             as={Link}
@@ -131,27 +129,29 @@ const PostPage: React.FC<PostPageProps> = ({
           </Button>
 
           <div className="flex gap-2">
-            {isAuthenticated && (
-              <>
-                <Button
-                  as={Link}
-                  to={`/posts/${post.id}/edit`}
-                  variant="flat"
-                  startContent={<Edit size={16} />}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="flat"
-                  color="danger"
-                  startContent={<Trash size={16} />}
-                  isLoading={isDeleting}
-                  onClick={handleDelete}
-                >
-                  Delete
-                </Button>
-              </>
+            {canEdit && (
+              <Button
+                as={Link}
+                to={`/posts/${post.id}/edit`}
+                variant="flat"
+                startContent={<Edit size={16} />}
+              >
+                Edit
+              </Button>
             )}
+
+            {canDelete && (
+              <Button
+                variant="flat"
+                color="danger"
+                startContent={<Trash size={16} />}
+                isLoading={isDeleting}
+                onClick={handleDelete}
+              >
+                Delete
+              </Button>
+            )}
+
             <Button
               variant="flat"
               startContent={<Share size={16} />}
@@ -162,15 +162,13 @@ const PostPage: React.FC<PostPageProps> = ({
           </div>
         </div>
 
-        {/* ===== Article Card ===== */}
+        {/* Article Card */}
         <Card className="bg-background/80 backdrop-blur-xl border border-default-200/60 shadow-xl rounded-3xl">
           <CardBody className="p-6 sm:p-10">
-            {/* Title */}
             <h1 className="text-3xl sm:text-4xl font-black leading-tight mb-6">
               {post.title}
             </h1>
 
-            {/* Meta */}
             <div className="flex flex-wrap items-center gap-6 text-sm text-default-600 mb-10">
               <div className="flex items-center gap-2">
                 <Avatar name={post.author?.name} size="sm" />
@@ -188,19 +186,11 @@ const PostPage: React.FC<PostPageProps> = ({
               </div>
             </div>
 
-            {/* Content */}
             <article
-              className="
-                prose prose-base sm:prose-lg max-w-none
-                prose-headings:font-bold
-                prose-p:text-default-700
-                leading-relaxed
-                mb-14
-              "
+              className="prose prose-base sm:prose-lg max-w-none prose-headings:font-bold prose-p:text-default-700 leading-relaxed mb-14"
               dangerouslySetInnerHTML={createSanitizedHTML(post.content)}
             />
 
-            {/* Footer */}
             <div className="flex flex-wrap gap-2 pt-6 border-t border-default-200">
               <Chip color="primary" variant="flat">
                 {post.category.name}

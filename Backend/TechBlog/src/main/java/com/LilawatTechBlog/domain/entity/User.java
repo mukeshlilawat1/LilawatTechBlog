@@ -44,6 +44,21 @@ public class User {
     @Builder.Default
     private Role role = Role.USER;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private int failedLoginAttempts = 0;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean accountLocked = false;
+
+    @Column
+    private LocalDateTime lockedUntil;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean twoFactorEnabled = false;
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

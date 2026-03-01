@@ -5,21 +5,25 @@ import com.LilawatTechBlog.Services.PostService;
 import com.LilawatTechBlog.Services.TagService;
 import com.LilawatTechBlog.domain.CreatePostRequest;
 import com.LilawatTechBlog.domain.PostStatus;
+import com.LilawatTechBlog.domain.Role;
 import com.LilawatTechBlog.domain.UpdatePostRequest;
 import com.LilawatTechBlog.domain.entity.Category;
 import com.LilawatTechBlog.domain.entity.Post;
 import com.LilawatTechBlog.domain.entity.Tag;
 import com.LilawatTechBlog.domain.entity.User;
+import com.LilawatTechBlog.exception.ResourceNotFoundException;
 import com.LilawatTechBlog.repository.PostRepository;
+import com.LilawatTechBlog.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.eclipse.angus.mail.imap.protocol.BODY;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.AccessDeniedException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +33,7 @@ public class PostServiceImpl implements PostService {
     private final CategoryService categoryService;
     private final TagService tagService;
     private static final int WORDS_PER_MINUTE = 200;
+    private final UserRepository userRepository;
 
     @Override
     public Post getPost(UUID id) {
@@ -125,10 +130,30 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void deletePost(UUID id) {
-     Post post = getPost(id);
-     postRepository.delete(post);
+    public void deletePost(UUID id, UUID currentUserId) throws AccessDeniedException {
+    Post post = postRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Post does not exist"));
 
+    User currentUser = userRepository.findById(currentUserId)
+            .orElseThrow(() -> new ResourceNotFoundException("user not found"));
+
+    boolean isAdmin = currentUser.getRole().equals(Role.ADMIN);
+    boolean isOwner = post.getAuthor().getId().equals(currentUser.getId());
+    boolean isPostByAdmin = post.getAuthor().getRole().equals(Role.ADMIN);
+
+    if (isAdmin) {
+        postRepository.delete(post);
+        return;
+    }
+
+    if (isPostByAdmin) {
+        throw new AccessDeniedException("You cannot delete this post");
+    }
+
+    if (!isOwner) {
+        throw new AccessDeniedException("You can only delete your own posts");
+    }
+    postRepository.delete(post);
     }
 
     @Override

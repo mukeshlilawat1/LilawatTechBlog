@@ -28,5 +28,6 @@ public class PostDto {
     private LocalDateTime updatedAt;
     private PostStatus status;
     private String rejectionMessage;
+    private String submittedByEmail;
 
 }

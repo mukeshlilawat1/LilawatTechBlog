@@ -45,6 +45,25 @@ public class OtpServiceImpl implements OtpService {
     }
 
     @Override
+    public void generateAndSendPasswordResetOtp(String email) {
+        otpRepository.deleteAllByEmail(email);
+        otpRepository.flush();
+
+        String otp = String.format("%d", 100000 + new Random().nextInt(900000));
+
+        OtpVerification otpVerification = OtpVerification.builder()
+                .email(email)
+                .otp(otp)
+                .verified(false)
+                .build();
+
+        otpRepository.saveAndFlush(otpVerification);
+        System.out.println(">>> Otp saved : " + otp + " for email: " + email);
+
+        emailService.sendOtpEmail(email, otp);
+    }
+
+    @Override
     @Transactional
     public boolean verifyOtp(String email, String otp) {
         Optional<OtpVerification> otpRecord =

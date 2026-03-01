@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class UserProfileResponse {
+ private String id;
  private String name;
  private String email;
  private long totalPosts;
