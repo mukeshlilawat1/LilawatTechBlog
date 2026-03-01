@@ -46,7 +46,6 @@ function AppContent() {
         display: "flex",
         flexDirection: "column",
         background: "#0a0a0b",
-        minHeight: "100vh",
       }}
     >
       <NavBar
@@ -60,10 +59,7 @@ function AppContent() {
         <Routes>
           {/* Public */}
           <Route path="/" element={<HomePage />} />
-          <Route
-            path="/posts/:id"
-            element={<PostPage isAuthenticated={isAuthenticated} />}
-          />
+          <Route path="/posts/:id" element={<PostPage />} />
 
           {/* Guest only */}
           <Route
